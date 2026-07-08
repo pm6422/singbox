@@ -49,7 +49,7 @@ graph TD
 ```text
 .
 ├── docker-compose.yml       # Docker 服务容器编排文件
-├── deploy.sh                # 自动化部署与增量用户配置脚本
+├── singbox.sh               # 交互式命令行控制面板脚本
 ├── README.md                # 项目文档
 └── config/                  # 配置数据持久化目录
     ├── users.txt            # [用户维护] 每一行配置一个用户名
@@ -59,35 +59,33 @@ graph TD
 
 ---
 
-## ⚡ 快速部署
+## ⚡ 快速部署与面板调起
 
 > [!IMPORTANT]
 > 执行部署前，请确保您服务器的 **`443/tcp`** 和 **`443/udp`** 端口未被其他服务（如 Nginx, Apache 或 Caddy）占用，并且防火墙已放行上述端口。
 
-### 1. 配置用户列表
-在项目根目录下创建（或修改自动生成的） `config/users.txt`：
-```text
-pm6422
-chenxin
-# 您可以在下方继续追加新用户名，每行一个
-new_user_1
-```
-*注：支持添加以 `#` 开头的注释行以及空行，脚本在运行时会自动跳过。*
-
-### 2. 执行一键部署
-无需手动授予可执行权限，直接通过 Bash 解释器运行脚本：
+在服务器终端中以 **root** 权限一键调起交互式管理面板（无需手动配置，首次启动会自动引导安装并创建默认用户 `pm6422` 与 `chenxin`）：
 
 ```bash
-sudo bash deploy.sh
+sudo bash singbox.sh
 ```
 
-### 3. 部署后操作
-脚本会自动执行以下所有流程，并在成功后在控制台打印生成的链接：
-1. 校验并自动安装 Docker 环境。
-2. 提示您输入绑定的域名（如果已为服务器 IP 配置了 DNS A 记录，输入域名即可在输出链接中自动替换 IP，无需手动修改；无域名直接回车即可）。
-3. 自动生成 Reality 证书密钥，或安全重用历史凭证。
-4. 增量派发 UUID 并写入 `config/config.json`。
-5. 启动或平滑重启 Sing-box 服务并输出客户端订阅链接。
+---
+
+## 🛠️ 控制面板功能介绍
+
+通过一键调起面板，您可以极其方便地通过输入数字菜单键完成所有运维操作：
+
+1. **Install & Deploy Service**：首次部署服务。会引导检测 Docker、获取 IP/配置自定义连接域名，并全自动生成配置。
+2. **Start Service**：一键启动 Sing-box 容器。
+3. **Stop Service**：一键停止并注销 Sing-box 容器。
+4. **Restart Service**：重启 Sing-box 容器使配置生效。
+5. **Uninstall Service**：彻底清理服务（包含容器清理、镜像删除以及整个 `config/` 目录的抹除）。
+6. **Update Sing-box Version**：一键拉取最新的官方镜像并热重启，升级完成后自动打印最新运行的内核版本。
+7. **Show VLESS Links & QR Codes**：列出所有用户的 VLESS 链接，并可交互式选择在终端控制台直接渲染扫码二维码。
+8. **Add User**：交互式添加新用户（自动增量重载，**完全保留已有老用户的 UUID 与密钥**，对其不产生任何干扰）。
+9. **Delete User**：交互式删除用户，选择序号即可将对应用户安全清除并重载服务。
+10. **View Real-time Logs**：实时查看代理日志（自动携带 `--tail=100` 安全限制，防止历史日志刷屏卡死终端）。
 
 ---
 
@@ -122,17 +120,6 @@ sudo bash deploy.sh
 
 ---
 
-## 🛠️ 日常运维指南
-
-所有的服务运维都可以通过标准的 Docker Compose 命令行完成。在项目根目录下执行：
-
-| 操作 | 对应命令 |
-| :--- | :--- |
-| **启动服务** | `docker compose up -d` |
-| **停止服务** | `docker compose down` |
-| **重启 Sing-box** | `docker compose restart sing-box` |
-| **实时查看日志** | `docker compose logs -f sing-box` |
-| **拉取最新镜像并升级** | `docker compose pull && docker compose up -d` |
 
 ---
 
