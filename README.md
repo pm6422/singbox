@@ -21,10 +21,10 @@
 
 ```mermaid
 graph TD
-    Client["📱 客户端 (Shadowrocket / Stash / v2rayN 等)"] -->| "发送 TLS 握手 (SNI: www.microsoft.com)" | Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
-    Server -->| "验证 Reality 证书签名 & Short ID" | Auth{"🔍 校验通过?"}
-    Auth -->| "是 (合法代理请求)" | Proxy["🚀 建立加密隧道，转发至目标网站"]
-    Auth -->| "否 (主动探测或普通访问)" | Fallback["🔒 安全回落 (Forward 流量至 www.microsoft.com)"]
+    Client["📱 客户端 (Shadowrocket / Stash / v2rayN 等)"] -->|发送 TLS 握手 SNI 伪装域名| Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
+    Server -->|验证 Reality 证书签名与密钥| Auth{"🔍 校验通过?"}
+    Auth -->|是 (合法代理请求)| Proxy["🚀 建立加密隧道，转发至目标网站"]
+    Auth -->|否 (主动探测或普通访问)| Fallback["🔒 安全回落 (Forward 流量至伪装网站)"]
     
     style Auth fill:#f9f,stroke:#333,stroke-width:2px
     style Proxy fill:#d4edda,stroke:#28a745,stroke-width:2px
