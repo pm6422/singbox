@@ -143,15 +143,27 @@ EOF
     # Detect public IP
     log_info "Detecting server public IP..."
     SERVER_IP=$(curl -s --max-time 5 https://api.ipify.org || curl -s --max-time 5 https://ifconfig.me || echo "")
-    if [ -z "$SERVER_IP" ]; then
-        log_warn "Failed to detect public IP automatically."
-        read -p "Please manually enter your server's public IP: " SERVER_IP
-        if [ -z "$SERVER_IP" ]; then
-            log_error "Public IP cannot be empty."
+    
+    # Prompt user for domain (defaulting to public IP)
+    echo -e "${YELLOW}------------------------------------------${NC}"
+    if [ -n "$SERVER_IP" ]; then
+        read -p "请输入您为此 Sing-box 服务绑定的域名 (直接回车将使用公网 IP: $SERVER_IP): " USER_DOMAIN
+    else
+        read -p "自动获取公网 IP 失败，请输入您的服务器域名或公网 IP: " USER_DOMAIN
+    fi
+    echo -e "${YELLOW}------------------------------------------${NC}"
+
+    CONNECTION_ADDRESS=""
+    if [ -n "$USER_DOMAIN" ]; then
+        CONNECTION_ADDRESS=$(echo "$USER_DOMAIN" | tr -d '[:space:]')
+        log_info "将使用自定义地址作为客户端连接目标: $CONNECTION_ADDRESS"
+    else
+        CONNECTION_ADDRESS="$SERVER_IP"
+        if [ -z "$CONNECTION_ADDRESS" ]; then
+            log_error "未输入且无法自动获取公网 IP，配置无法继续。"
             exit 1
         fi
-    else
-        log_info "Detected Public IP: $SERVER_IP"
+        log_info "将使用检测到的公网 IP 作为客户端连接目标: $CONNECTION_ADDRESS"
     fi
 
     # Process each user
@@ -192,8 +204,8 @@ EOF
         fi
         USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"uuid\": \"$UUID\", \"flow\": \"xtls-rprx-vision\"}"
 
-        # Generate client link
-        LINK="vless://$UUID@$SERVER_IP:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
+        # Generate client link using the connection address (domain or IP)
+        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
     done
 

@@ -42,11 +42,12 @@ sudo bash deploy.sh
 脚本将自动完成以下流程：
 1. 检测并安装 Docker、Docker Compose。
 2. 拉取 `sing-box` 官方 Docker 镜像。
-3. 检查是否有历史配置，智能地复用已有的 Reality 证书秘钥。
-4. 读取 `users.txt` 里的用户名，自动执行**增量更新**（老用户保留已有 UUID，新用户分配新 UUID，被移除的用户自动清除）。
-5. 自动组装并将配置写入 `./config/sing-box/config.json`。
-6. 使用 Docker Compose 在宿主机 **`443`** 端口启动/平滑重启服务使之生效。
-7. **在控制台中高亮打印出所有活跃用户的专属客户端直连链接**。
+3. 提示您输入绑定的服务器域名（直接回车可跳过并使用公网 IP）。
+4. 检查是否有历史配置，智能地复用已有的 Reality 证书秘钥。
+5. 读取 `users.txt` 里的用户名，自动执行**增量更新**（老用户保留已有 UUID，新用户分配新 UUID，被移除的用户自动清除）。
+6. 自动组装并将配置写入 `./config/config.json`。
+7. 使用 Docker Compose 在宿主机 **`443`** 端口启动/平滑重启服务使之生效。
+8. **在控制台中高亮打印出所有活跃用户的专属客户端直连链接**。
 
 ---
 
@@ -54,7 +55,7 @@ sudo bash deploy.sh
 
 您在部署完毕后将会获得如下格式的链接：
 ```text
-vless://<UUID>@<SERVER_IP>:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=<PUBLIC_KEY>&sid=<SHORT_ID>#singbox-<USER_NAME>
+vless://<UUID>@<SERVER_IP_OR_DOMAIN>:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=<PUBLIC_KEY>&sid=<SHORT_ID>#singbox-<USER_NAME>
 ```
 
 直接复制相应用户的链接，导入以下主流客户端之一即可开始使用：
