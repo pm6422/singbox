@@ -93,6 +93,14 @@ sudo bash singbox.sh
 
 复制部署输出的 `vless://` 链接并直接导入至以下推荐的主流客户端：
 
+> [!IMPORTANT]
+> **💡 协议兼容性与内核要求**
+> 本服务部署的节点基于最新的 **VLESS-XTLS-Reality** 协议。如果您需要使用非推荐列表中的其他第三方客户端，请确保该客户端满足以下全部技术指标：
+> 1. **基础协议**：必须原生支持 **`VLESS`** 传输协议。
+> 2. **无证书安全**：必须支持 **`Reality`** 物理证书借用伪装技术。
+> 3. **流控选项**：必须支持 **`xtls-rprx-vision`** (Vision 流控模式)。
+> 4. **底层内核**：客户端内核必须使用较新版本的 **`Xray-core (v1.8.0+)`** 或 **`sing-box (v1.3.0+)`**。如 Surge、Quantumult X 等采用非标准或老旧内核的客户端，将完全无法识别和连接此节点。
+
 > [!TIP]
 > iOS 平台下的所有代理客户端（Shadowrocket, Sing-box, Hiddify, Stash 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
 
