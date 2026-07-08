@@ -98,7 +98,7 @@ sudo bash singbox.sh
 
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
-| **iOS / macOS** | **[Shadowrocket (小火箭)](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选（iOS 商店付费下载） |
+| **iOS / macOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选（iOS 商店付费下载） |
 | | **[Hiddify](https://github.com/hiddify/hiddify-next/releases)** | 免费跨平台工具（可通过 [App Store](https://apps.apple.com/app/hiddify/id6503977237) 免费下载，推荐） |
 | | **[Karing](https://github.com/KaringX/karing/releases)** | 界面现代美观，支持多种规则配置（可从 App Store 下载） |
 | | **[Stash](https://apps.apple.com/app/stash/id1596063349)** | 采用 Mihomo 核心，完美支持（iOS 商店付费下载） |
