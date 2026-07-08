@@ -78,10 +78,9 @@ setup_configurations() {
 
     # Ensure users.txt exists
     if [ ! -f "config/users.txt" ]; then
-        log_info "config/users.txt not found. Creating default config/users.txt with 'pm6422' and 'chenxin'..."
+        log_info "users.txt not found. Creating default config/users.txt with 'admin'..."
         cat <<EOF > config/users.txt
-pm6422
-chenxin
+admin
 EOF
     fi
 
