@@ -127,6 +127,6 @@ sudo bash deploy.sh
 ---
 
 ## 📝 配置文件说明
-- **配置用户列表**：[config/users.txt](file:///Users/louislau/Workspace/singbox/config/users.txt) （日常只需修改此文件来增删用户）。
-- **服务端运行配置**：[config/config.json](file:///Users/louislau/Workspace/singbox/config/config.json) （自动维护，切勿手动乱改，防格式损毁）。
-- **已生成链接备份**：[config/client_links.txt](file:///Users/louislau/Workspace/singbox/config/client_links.txt) （包含用户专属连接，可随时打开复制）。
+- **配置用户列表**：[config/users.txt](./config/users.txt) （日常只需修改此文件来增删用户）。
+- **服务端运行配置**：[config/config.json](./config/config.json) （自动维护，切勿手动乱改，防格式损毁）。
+- **已生成链接备份**：[config/client_links.txt](./config/client_links.txt) （包含用户专属连接，可随时打开复制）。
