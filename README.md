@@ -131,7 +131,7 @@ sudo bash deploy.sh
 | **启动服务** | `docker compose up -d` |
 | **停止服务** | `docker compose down` |
 | **重启 Sing-box** | `docker compose restart sing-box` |
-| **实时查看日志** | `docker compose logs -f` |
+| **实时查看日志** | `docker compose logs -f sing-box` |
 | **拉取最新镜像并升级** | `docker compose pull && docker compose up -d` |
 
 ---
