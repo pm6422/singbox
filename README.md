@@ -1,94 +1,129 @@
-# Sing-box Server 一键部署套件
+# 🚀 Sing-box Enterprise Docker Deployment Kit
 
-基于 Docker 快速搭建一个极简、高性能的 Sing-box 代理服务器，采用主流的 **VLESS-XTLS-Reality** 协议。
+> 基于 Docker 与 VLESS-XTLS-Reality 协议的极简、安全、高性能代理服务一键部署方案。
 
-## 特性
-
-- 🔒 **高性能伪装**：采用 Reality 技术，无需自备域名和申请证书，直接伪装至公网大厂网站（默认伪装为 `www.microsoft.com`）。
-- 👥 **用户文件化配置**：通过 `config/users.txt` 统一管理用户名，每行一个。
-- 🔄 **智能增量更新**：新增或修改用户后再次运行部署脚本时，**原有的老用户凭证（UUID）和 Reality 密钥会被自动保留**，仅对新加入的用户执行新增。删除某行用户名即代表在服务器上将其安全停用。
-- 🐳 **一键部署，零手工配置**：一键运行脚本，自动拉取、生成密钥对并写入配置文件，极其省心。
-- 🔗 **扫码/复制即用**：部署成功后，终端将直接批量打印出所有用户的客户端直连链接，可方便快捷地导入客户端。
+<p align="left">
+  <img src="https://img.shields.io/badge/Core-Sing--box-blue?style=flat-square&logo=go" alt="Sing-box">
+  <img src="https://img.shields.io/badge/Container-Docker-blue?style=flat-square&logo=docker" alt="Docker">
+  <img src="https://img.shields.io/badge/Protocol-VLESS--XTLS--Reality-orange?style=flat-square" alt="Protocol">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
+</p>
 
 ---
 
-## 快速开始
+## 📖 项目简介
 
-### 1. 确认文件准备
-确保您的目录中拥有以下三个核心文件：
-- `docker-compose.yml` - Docker 编排配置
-- `deploy.sh` - 自动化部署与增量配置生成脚本
-- `config/users.txt` - 用户名列表文件（若不存在，脚本在首次运行时会默认自动创建并填入 `pm6422` 和 `chenxin`）
+本项目旨在通过高度自动化的脚本，在您的 Linux 服务器上一键拉取并部署官方最新的 **Sing-box** 代理服务端。服务独占 **`443`** 端口，借助 **Reality** 协议的证书借用特性，无需自备域名和证书，即可实现极高抗封锁性的加密数据传输。
 
-### 2. 管理用户列表（可选）
-在运行部署前，您可以直接编辑 [config/users.txt](file:///Users/louislau/Workspace/singbox/config/users.txt) 增加或修改用户名，例如：
-```text
-zhansan
-lisi
-# 可以在这下面继续添加新用户，每一行一个名字：
-new_user_1
-new_user_2
+### 🛡️ 工作原理与伪装架构
+
+当流量到达您的服务器 `443` 端口时，Sing-box 会对其执行 TLS 验证。如果是来自您客户端的合法认证流量，将建立安全代理通道；如果是第三方主动探测或普通用户流量，则会无感重定向（回落）至目标网站。
+
+```mermaid
+graph TD
+    Client["📱 客户端 (Shadowrocket / Stash / v2rayN 等)"] -->| "发送 TLS 握手 (SNI: www.microsoft.com)" | Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
+    Server -->| "验证 Reality 证书签名 & Short ID" | Auth{"🔍 校验通过?"}
+    Auth -->| "是 (合法代理请求)" | Proxy["🚀 建立加密隧道，转发至目标网站"]
+    Auth -->| "否 (主动探测或普通访问)" | Fallback["🔒 安全回落 (Forward 流量至 www.microsoft.com)"]
+    
+    style Auth fill:#f9f,stroke:#333,stroke-width:2px
+    style Proxy fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style Fallback fill:#fff3cd,stroke:#ffc107,stroke-width:2px
 ```
-*注：支持以 `#` 开头的注释行和空行，脚本会自动过滤它们。*
 
-### 3. 执行部署脚本
-在服务器终端中以 **root** 权限执行以下命令：
+---
+
+## ✨ 核心特性
+
+*   🔒 **无感完美伪装**：采用先进的 Reality 偷渡技术，偷用大厂（默认 `www.microsoft.com`）合法的 TLSv1.3 证书进行混淆，完美逃避主动探测。
+*   👥 **多用户管理文件化**：在 `config/users.txt` 中通过简单的按行增删用户名，即可全自动维护多用户节点。
+*   🔄 **非破坏性增量更新**：重运行部署脚本时，**自动保留已有老用户的 UUID 凭证与服务器私钥**。老用户无需重新导入配置，仅对新加入用户做增量派发，对移出的用户做即时停用。
+*   🐳 **极简化容器编排**：完全依赖官方最新的 Docker 镜像，独立运行，不引入 Caddy 或 Nginx 等外部繁杂的 Web 面板，极省资源。
+*   🔗 **一键导出直连**：部署完成或更新配置后，终端将以高亮色彩批量生成所有用户的专属 `vless://` 连接，即刻扫码或复制导入客户端。
+
+---
+
+## 📂 目录结构
+
+项目目录已实现最精简、扁平的设计：
+
+```text
+.
+├── docker-compose.yml       # Docker 服务容器编排文件
+├── deploy.sh                # 自动化部署与增量用户配置脚本
+├── README.md                # 项目文档
+└── config/                  # 配置数据持久化目录
+    ├── users.txt            # [用户维护] 每一行配置一个用户名
+    ├── config.json          # [自动生成] 服务端 sing-box 主配置文件
+    └── client_links.txt     # [自动生成] 备份的客户端直连订阅链接
+```
+
+---
+
+## ⚡ 快速部署
+
+> [!IMPORTANT]
+> 执行部署前，请确保您服务器的 **`443/tcp`** 和 **`443/udp`** 端口未被其他服务（如 Nginx, Apache 或 Caddy）占用，并且防火墙已放行上述端口。
+
+### 1. 配置用户列表
+在项目根目录下创建（或修改自动生成的） `config/users.txt`：
+```text
+pm6422
+chenxin
+# 您可以在下方继续追加新用户名，每行一个
+new_user_1
+```
+*注：支持添加以 `#` 开头的注释行以及空行，脚本在运行时会自动跳过。*
+
+### 2. 执行一键部署
+无需手动授予可执行权限，直接通过 Bash 解释器运行脚本：
 
 ```bash
-# 运行自动化部署
 sudo bash deploy.sh
 ```
 
-脚本将自动完成以下流程：
-1. 检测并安装 Docker、Docker Compose。
-2. 拉取 `sing-box` 官方 Docker 镜像。
-3. 提示您输入绑定的服务器域名（直接回车可跳过并使用公网 IP）。
-4. 检查是否有历史配置，智能地复用已有的 Reality 证书秘钥。
-5. 读取 `users.txt` 里的用户名，自动执行**增量更新**（老用户保留已有 UUID，新用户分配新 UUID，被移除的用户自动清除）。
-6. 自动组装并将配置写入 `./config/config.json`。
-7. 使用 Docker Compose 在宿主机 **`443`** 端口启动/平滑重启服务使之生效。
-8. **在控制台中高亮打印出所有活跃用户的专属客户端直连链接**。
+### 3. 部署后操作
+脚本会自动执行以下所有流程，并在成功后在控制台打印生成的链接：
+1. 校验并自动安装 Docker 环境。
+2. 提示您输入绑定的域名（如果已为服务器 IP 配置了 DNS A 记录，输入域名即可在输出链接中自动替换 IP，无需手动修改；无域名直接回车即可）。
+3. 自动生成 Reality 证书密钥，或安全重用历史凭证。
+4. 增量派发 UUID 并写入 `config/config.json`。
+5. 启动或平滑重启 Sing-box 服务并输出客户端订阅链接。
 
 ---
 
-## 客户端导入指南
+## 📱 客户端支持矩阵
 
-您在部署完毕后将会获得如下格式的链接：
-```text
-vless://<UUID>@<SERVER_IP_OR_DOMAIN>:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=<PUBLIC_KEY>&sid=<SHORT_ID>#singbox-<USER_NAME>
-```
+复制部署输出的 `vless://` 链接并直接导入至以下推荐的主流客户端：
 
-直接复制相应用户的链接，导入以下主流客户端之一即可开始使用：
-- **iOS / macOS**: Shadowrocket, Sing-box, Stash
-- **Android**: v2rayNG, Sing-box, Nekobox
-- **Windows**: v2rayN, Nekobox (NekoRay), Clash Verge Rev (Mihomo/Clash.Meta 核心)
-
----
-
-## 服务管理命令
-
-在项目目录下，您可以使用标准的 Docker Compose 命令管理容器：
-
-- **查看日志（可用于排查连接问题）**：
-  ```bash
-  docker compose logs -f
-  ```
-- **重启服务**：
-  ```bash
-  docker compose restart
-  ```
-- **停止服务**：
-  ```bash
-  docker compose down
-  ```
-- **更新镜像与重启服务**：
-  ```bash
-  docker compose pull && docker compose up -d
-  ```
+| 平台 | 推荐客户端 | 协议支持说明 |
+| :--- | :--- | :--- |
+| **iOS / macOS** | **Shadowrocket (小火箭)** | 原生完美支持，推荐首选 |
+| | **Sing-box (官方)** | 官方客户端，原生支持 |
+| | **Stash** | 采用 Mihomo 核心，完美支持 |
+| **Android** | **v2rayNG** | 主流客户端，完美支持 Reality (Vision) |
+| | **Nekobox** | 功能强大，支持一键测速与节点导入 |
+| **Windows** | **Clash Verge Rev** | 推荐使用，基于新版 Mihomo 内核 |
+| | **v2rayN** | 切换至 Xray/Sing-box 内核后可正常连通 |
+| | **Nekobox (NekoRay)** | 客户端原生支持，延迟低 |
 
 ---
 
-## 配置文件说明
-- **用户列表**：[config/users.txt](file:///Users/louislau/Workspace/singbox/config/users.txt) (用于直接增删用户名)。
-- **服务器配置文件**：[config/config.json](file:///Users/louislau/Workspace/singbox/config/config.json) (部署脚本运行后生成)。
-- **备份的客户端直连链接**：[config/client_links.txt](file:///Users/louislau/Workspace/singbox/config/client_links.txt) (部署脚本运行后自动生成与更新)。
+## 🛠️ 日常运维指南
+
+所有的服务运维都可以通过标准的 Docker Compose 命令行完成。在项目根目录下执行：
+
+| 操作 | 对应命令 |
+| :--- | :--- |
+| **启动服务** | `docker compose up -d` |
+| **停止服务** | `docker compose down` |
+| **重启 Sing-box** | `docker compose restart sing-box` |
+| **实时查看日志** | `docker compose logs -f` |
+| **拉取最新镜像并升级** | `docker compose pull && docker compose up -d` |
+
+---
+
+## 📝 配置文件说明
+- **配置用户列表**：[config/users.txt](file:///Users/louislau/Workspace/singbox/config/users.txt) （日常只需修改此文件来增删用户）。
+- **服务端运行配置**：[config/config.json](file:///Users/louislau/Workspace/singbox/config/config.json) （自动维护，切勿手动乱改，防格式损毁）。
+- **已生成链接备份**：[config/client_links.txt](file:///Users/louislau/Workspace/singbox/config/client_links.txt) （包含用户专属连接，可随时打开复制）。
