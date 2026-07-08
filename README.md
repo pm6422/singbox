@@ -102,6 +102,7 @@ sudo bash deploy.sh
 | | **Stash** | 采用 Mihomo 核心，完美支持 |
 | **Android** | **v2rayNG** | 主流客户端，完美支持 Reality (Vision) |
 | | **Nekobox** | 功能强大，支持一键测速与节点导入 |
+| | **Sing-box (官方)** | 官方客户端，原生支持 |
 | **Windows** | **Clash Verge Rev** | 推荐使用，基于新版 Mihomo 内核 |
 | | **v2rayN** | 切换至 Xray/Sing-box 内核后可正常连通 |
 | | **Nekobox (NekoRay)** | 客户端原生支持，延迟低 |
