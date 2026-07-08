@@ -100,9 +100,9 @@ sudo bash deploy.sh
 | **iOS / macOS** | **Shadowrocket (小火箭)** | 原生完美支持，推荐首选 |
 | | **Sing-box (官方)** | 官方客户端，原生支持 |
 | | **Stash** | 采用 Mihomo 核心，完美支持 |
-| **Android** | **v2rayNG** | 主流客户端，完美支持 Reality (Vision) |
-| | **Nekobox** | 功能强大，支持一键测速与节点导入 |
-| | **Sing-box (官方)** | 官方客户端，原生支持 |
+| **Android** | **Sing-box (官方)** | 官方客户端，**推荐首选**（可直接在 Google Play 商店下载） |
+| | **v2rayNG** | 开源老牌客户端，支持 Reality（需前往 GitHub 下载 APK） |
+| | **Nekobox** | 功能强大，支持一键测速与节点导入（需前往 GitHub 下载 APK） |
 | **Windows** | **Clash Verge Rev** | 推荐使用，基于新版 Mihomo 内核 |
 | | **v2rayN** | 切换至 Xray/Sing-box 内核后可正常连通 |
 | | **Nekobox (NekoRay)** | 客户端原生支持，延迟低 |
