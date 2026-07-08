@@ -106,6 +106,9 @@ sudo bash deploy.sh
 | **Windows** | **Clash Verge Rev** | 推荐使用，基于新版 Mihomo 内核 |
 | | **v2rayN** | 切换至 Xray/Sing-box 内核后可正常连通 |
 | | **Nekobox (NekoRay)** | 客户端原生支持，延迟低 |
+| **OpenWrt (软路由)** | **OpenClash** | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
+| | **PassWall** | 选用 Xray / Sing-box 内核即可连通 |
+| | **HomeProxy** | 基于官方 Sing-box 核心的代理插件，原生支持 |
 
 ---
 
