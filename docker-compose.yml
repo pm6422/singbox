@@ -1,0 +1,12 @@
+name: singbox-server
+services:
+  sing-box:
+    image: ghcr.io/sagernet/sing-box:latest
+    container_name: sing-box
+    restart: unless-stopped
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      - "./config:/etc/sing-box"
+    command: run -c /etc/sing-box/config.json
