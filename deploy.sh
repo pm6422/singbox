@@ -144,26 +144,25 @@ EOF
     log_info "Detecting server public IP..."
     SERVER_IP=$(curl -s --max-time 5 https://api.ipify.org || curl -s --max-time 5 https://ifconfig.me || echo "")
     
-    # Prompt user for domain (defaulting to public IP)
     echo -e "${YELLOW}------------------------------------------${NC}"
     if [ -n "$SERVER_IP" ]; then
-        read -p "请输入您为此 Sing-box 服务绑定的域名 (直接回车将使用公网 IP: $SERVER_IP): " USER_DOMAIN
+        read -p "Please enter the domain name bound to this Sing-box service (Press Enter to use Public IP: $SERVER_IP): " USER_DOMAIN
     else
-        read -p "自动获取公网 IP 失败，请输入您的服务器域名或公网 IP: " USER_DOMAIN
+        read -p "Failed to detect public IP. Please enter your domain name or public IP: " USER_DOMAIN
     fi
     echo -e "${YELLOW}------------------------------------------${NC}"
 
     CONNECTION_ADDRESS=""
     if [ -n "$USER_DOMAIN" ]; then
         CONNECTION_ADDRESS=$(echo "$USER_DOMAIN" | tr -d '[:space:]')
-        log_info "将使用自定义地址作为客户端连接目标: $CONNECTION_ADDRESS"
+        log_info "Using custom address as client connection target: $CONNECTION_ADDRESS"
     else
         CONNECTION_ADDRESS="$SERVER_IP"
         if [ -z "$CONNECTION_ADDRESS" ]; then
-            log_error "未输入且无法自动获取公网 IP，配置无法继续。"
+            log_error "No input provided and failed to automatically detect public IP. Configuration cannot proceed."
             exit 1
         fi
-        log_info "将使用检测到的公网 IP 作为客户端连接目标: $CONNECTION_ADDRESS"
+        log_info "Using detected public IP as client connection target: $CONNECTION_ADDRESS"
     fi
 
     # Process each user
