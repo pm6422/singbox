@@ -35,11 +35,8 @@ new_user_2
 在服务器终端中以 **root** 权限执行以下命令：
 
 ```bash
-# 赋予脚本执行权限
-chmod +x deploy.sh
-
 # 运行自动化部署
-sudo ./deploy.sh
+sudo bash deploy.sh
 ```
 
 脚本将自动完成以下流程：
