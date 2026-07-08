@@ -1,4 +1,4 @@
-# 🚀 Sing-box Docker Deployment Kit
+# 🚀 Sing-box Docker Server Manager
 
 > 基于 Docker 与 VLESS-XTLS-Reality 协议的极简、安全、高性能代理服务一键部署方案。
 
