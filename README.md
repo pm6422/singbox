@@ -95,17 +95,26 @@ sudo bash deploy.sh
 
 复制部署输出的 `vless://` 链接并直接导入至以下推荐的主流客户端：
 
+> [!TIP]
+> iOS 平台下的所有代理客户端（Shadowrocket, Sing-box, Hiddify, Stash 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
+
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
 | **iOS / macOS** | **Shadowrocket (小火箭)** | 原生完美支持，推荐首选 |
 | | **Sing-box (官方)** | 官方客户端，原生支持 |
+| | **Hiddify** | 免费跨平台工具（可在 App Store 免费下载，推荐） |
 | | **Stash** | 采用 Mihomo 核心，完美支持 |
+| | **Karing** | 界面现代美观，支持多种规则配置 |
 | **Android** | **Sing-box (官方)** | 官方客户端，**推荐首选**（可直接在 Google Play 商店下载） |
+| | **Hiddify** | 原生基于 Sing-box（可在 Google Play 直接下载，推荐） |
 | | **v2rayNG** | 开源老牌客户端，支持 Reality（需前往 GitHub 下载 APK） |
 | | **Nekobox** | 功能强大，支持一键测速与节点导入（需前往 GitHub 下载 APK） |
+| | **Karing** | 跨平台现代化客户端（支持从 Google Play 下载） |
 | **Windows** | **Clash Verge Rev** | 推荐使用，基于新版 Mihomo 内核 |
+| | **Hiddify** | 原生基于官方 Sing-box 内核的绿色直连客户端 |
 | | **v2rayN** | 切换至 Xray/Sing-box 内核后可正常连通 |
 | | **Nekobox (NekoRay)** | 客户端原生支持，延迟低 |
+| | **Karing** | 极简现代化多协议代理客户端 |
 | **OpenWrt (软路由)** | **OpenClash** | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
 | | **PassWall** | 选用 Xray / Sing-box 内核即可连通 |
 | | **HomeProxy** | 基于官方 Sing-box 核心的代理插件，原生支持 |
