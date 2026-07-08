@@ -101,10 +101,11 @@ sudo bash deploy.sh
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
 | **iOS / macOS** | **Shadowrocket (小火箭)** | 原生完美支持，推荐首选 |
-| | **Sing-box (官方)** | 官方客户端，原生支持 |
 | | **Hiddify** | 免费跨平台工具（可在 App Store 免费下载，推荐） |
-| | **Stash** | 采用 Mihomo 核心，完美支持 |
 | | **Karing** | 界面现代美观，支持多种规则配置 |
+| | **Stash** | 采用 Mihomo 核心，完美支持 |
+| | **Sing-box (官方) - Mac 端** | 完美支持（可直接在 GitHub 下载 `.dmg` 包手动安装） |
+| | *~~Sing-box (官方) - iOS 端~~* | *因苹果审核误判已从 App Store 下架，普通用户暂不可用* |
 | **Android** | **Sing-box (官方)** | 官方客户端，**推荐首选**（可直接在 Google Play 商店下载） |
 | | **Hiddify** | 原生基于 Sing-box（可在 Google Play 直接下载，推荐） |
 | | **v2rayNG** | 开源老牌客户端，支持 Reality（需前往 GitHub 下载 APK） |
