@@ -176,7 +176,8 @@ EOF
     # Clean up ALL generated config files atomically to prevent stale files from lingering.
     # Using rm -rf + mkdir is safer than glob (glob silently fails when dir is empty or missing).
     rm -f config/*_client.json          # per-user client configs
-    rm -rf config/subs && mkdir -p config/subs  # subscription files served by nginx
+    mkdir -p config/subs
+    find config/subs -name "*.json" -delete  # clear subs without removing the dir (preserves nginx volume mount)
 
     # Process each user
     USERS_JSON=""
