@@ -171,6 +171,25 @@ EOF
         fi
     fi
 
+    # Resolve domain to IP for client config (eliminates DNS bootstrap dependency)
+    if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+        SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
+    else
+        SERVER_CONNECT_IP=$(dig +short A "$CONNECTION_ADDRESS" 2>/dev/null | grep -E '^[0-9]+' | head -1)
+        if [ -z "$SERVER_CONNECT_IP" ]; then
+            SERVER_CONNECT_IP=$(nslookup "$CONNECTION_ADDRESS" 2>/dev/null | awk '/Address:/ {print $2}' | grep -v '#' | head -1)
+        fi
+        if [ -z "$SERVER_CONNECT_IP" ]; then
+            SERVER_CONNECT_IP=$(python3 -c "import socket; print(socket.gethostbyname('$CONNECTION_ADDRESS'))" 2>/dev/null || echo "")
+        fi
+        if [ -z "$SERVER_CONNECT_IP" ]; then
+            log_warn "Could not resolve $CONNECTION_ADDRESS to IP, using domain directly."
+            SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
+        else
+            log_info "Resolved $CONNECTION_ADDRESS -> $SERVER_CONNECT_IP (used in client config)"
+        fi
+    fi
+
 
 
     # Clean up ALL generated config files atomically to prevent stale files from lingering.
@@ -259,7 +278,7 @@ EOF
     {
       "type": "vless",
       "tag": "proxy",
-      "server": "$CONNECTION_ADDRESS",
+      "server": "$SERVER_CONNECT_IP",
       "server_port": 443,
       "uuid": "$UUID",
       "flow": "xtls-rprx-vision",
@@ -276,8 +295,7 @@ EOF
           "short_id": "$SHORT_ID"
         }
       },
-      "packet_encoding": "xudp",
-      "domain_resolver": "dns-local"
+      "packet_encoding": "xudp"
     },
     {
       "type": "direct",
