@@ -455,9 +455,7 @@ action_show_links() {
             qrencode -t ansiutf8 "$singbox_import_link"
         fi
         
-        if [ -f "config/${user_name}_client.json" ]; then
-            echo -e "Client JSON config saved locally: ${BLUE}config/${user_name}_client.json${NC}"
-        fi
+        echo -e "Profile Subscription URL: ${GREEN}${sub_url_val}${NC}"
         echo ""
         i=$((i+1))
     done < config/client_links.txt
