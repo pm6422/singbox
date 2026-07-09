@@ -171,6 +171,19 @@ EOF
         fi
     fi
 
+    # Resolve domain to IP for client config (eliminates DNS bootstrap dependency)
+    if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+        SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
+    else
+        SERVER_CONNECT_IP=$(dig +short A "$CONNECTION_ADDRESS" 2>/dev/null | grep -E '^[0-9]+' | head -1)
+        if [ -z "$SERVER_CONNECT_IP" ]; then
+            log_warn "Could not resolve $CONNECTION_ADDRESS to IP, using domain directly."
+            SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
+        else
+            log_info "Resolved $CONNECTION_ADDRESS -> $SERVER_CONNECT_IP (used in client config)"
+        fi
+    fi
+
     # Clean up old client config files to prevent deleted users' configs from lingering
     rm -f config/*_client.json
     mkdir -p config/subs
@@ -256,7 +269,7 @@ EOF
     {
       "type": "vless",
       "tag": "proxy",
-      "server": "$CONNECTION_ADDRESS",
+      "server": "$SERVER_CONNECT_IP",
       "server_port": 443,
       "uuid": "$UUID",
       "flow": "xtls-rprx-vision",
@@ -273,8 +286,7 @@ EOF
           "short_id": "$SHORT_ID"
         }
       },
-      "packet_encoding": "xudp",
-      "domain_resolver": "dns-local"
+      "packet_encoding": "xudp"
     },
     {
       "type": "direct",
