@@ -212,7 +212,7 @@ EOF
         USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"uuid\": \"$UUID\", \"flow\": \"xtls-rprx-vision\"}"
 
         # Generate client link
-        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
+        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=dl.google.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
 
         # Generate client JSON config
@@ -271,7 +271,7 @@ EOF
       "flow": "xtls-rprx-vision",
       "tls": {
         "enabled": true,
-        "server_name": "www.microsoft.com",
+        "server_name": "dl.google.com",
         "utls": {
           "enabled": true,
           "fingerprint": "chrome"
@@ -334,11 +334,11 @@ EOF
       ],
       "tls": {
         "enabled": true,
-        "server_name": "www.microsoft.com",
+        "server_name": "dl.google.com",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "www.microsoft.com",
+            "server": "dl.google.com",
             "server_port": 443
           },
           "private_key": "$PRIVATE_KEY",
