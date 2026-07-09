@@ -111,7 +111,7 @@ sudo bash singbox.sh
 | | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置（App Store 免费下载） |
 | **macOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 完美支持（M系列芯片 Mac 可从 Mac App Store 下载安装） |
 | | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，完美支持（可直接在 GitHub 下载 `.dmg` 包手动安装） |
-| | **[Karing](https://karing.app)** | 界面现代美观，支持多种规则配置（可从 App Store 下载） |
+| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置（可从 App Store 下载） |
 | **Android** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，**推荐首选**（可通过 [Google Play](https://play.google.com/store/apps/details?id=io.nekohasekai.singbox) 商店下载） |
 | | **[v2rayNG](https://github.com/2dust/v2rayNG/releases)** | 开源老牌客户端，支持 Reality（需前往 GitHub 下载 APK） |
 | | **[Nekobox](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases)** | 功能强大，支持一键测速与节点导入（需前往 GitHub 下载 APK） |
