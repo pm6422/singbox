@@ -237,7 +237,8 @@ EOF
       },
       {
         "tag": "dns-local",
-        "type": "local"
+        "type": "udp",
+        "server": "223.5.5.5"
       }
     ],
     "final": "dns-remote"
@@ -292,6 +293,10 @@ EOF
           "tun-in"
         ],
         "action": "sniff"
+      },
+      {
+        "ip_cidr": ["223.5.5.5/32"],
+        "outbound": "direct"
       },
       {
         "protocol": "dns",
