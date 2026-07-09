@@ -19,18 +19,6 @@
 
 当流量到达您的服务器 `443` 端口时，Sing-box 会对其执行 TLS 验证。客户端使用 Trojan 协议并在建立 TLS 握手时利用配置好的密码完成身份认证，认证成功后建立安全代理通道。
 
-```mermaid
-graph TD
-    Client["📱 客户端 (Shadowrocket / Surfboard 等)"] -->|发起 TLS 连接 (支持自签名证书)| Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
-    Server -->|验证 Trojan 密码凭证| Auth{"🔍 校验通过"}
-    Auth -->|是 合法代理请求| Proxy["🚀 建立加密隧道，转发目标网站流量"]
-    Auth -->|否 非法连接| Block["🔒 拒绝连接"]
-    
-    style Auth fill:#f9f,stroke:#333,stroke-width:2px
-    style Proxy fill:#d4edda,stroke:#28a745,stroke-width:2px
-    style Block fill:#f8d7da,stroke:#dc3545,stroke-width:2px
-```
-
 ---
 
 ## ✨ 核心特性
