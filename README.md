@@ -108,13 +108,13 @@ sudo bash singbox.sh
 | 平台 | 推荐客户端 | 支持导入格式 | 协议与导入说明 |
 | :--- | :--- | :--- | :--- |
 | **iOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | `trojan://` 链接 | 原生完美支持，**推荐首选**（不支持配置下载地址） |
-| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | `sing-box://` 链接 / `trojan://` 链接 / 配置下载地址 | 界面现代美观，支持多种规则配置 |
-| **macOS** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | `sing-box://` 链接 / 配置下载地址 | 官方客户端，**推荐首选** |
+| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | `sing-box://` 链接 / `trojan://` 链接  | 界面现代美观，支持多种规则配置 |
+| **macOS** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | `sing-box://` 链接  | 官方客户端，**推荐首选** |
 | | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | `trojan://` 链接 | 完美支持（不支持配置下载地址） |
-| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | `sing-box://` 链接 / `trojan://` 链接 / 配置下载地址 | 界面现代美观，支持多种规则配置 |
+| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | `sing-box://` 链接 / `trojan://` 链接  | 界面现代美观，支持多种规则配置 |
 | **Android** | **[Surfboard](https://play.google.com/store/apps/details?id=com.getsurfboard)** | `trojan://` 链接 | 界面精致美观，完美支持 Trojan 协议，**推荐首选**（不支持配置下载地址） |
-| | **[Karing](https://karing.app)** | `sing-box://` 链接 / `trojan://` 链接 / 配置下载地址 | 界面现代美观，支持多种规则配置 |
-| **Windows** | **[Karing](https://karing.app)** | `sing-box://` 链接 / `trojan://` 链接 / 配置下载地址 | 界面现代美观，支持多种规则配置，**推荐首选** |
+| | **[Karing](https://karing.app)** | `sing-box://` 链接 / `trojan://` 链接 | 界面现代美观，支持多种规则配置 |
+| **Windows** | **[Karing](https://karing.app)** | `sing-box://` 链接 / `trojan://` 链接 | 界面现代美观，支持多种规则配置，**推荐首选** |
 | **OpenWrt** | **[OpenClash](https://github.com/vernesong/OpenClash)** | 手动导入 `trojan://` 链接 | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
 | | **[PassWall](https://github.com/Openwrt-Passwall/openwrt-passwall)** | 手动导入 `trojan://` 链接 | 选用 Xray / Sing-box 内核即可连通 |
 | | **[HomeProxy](https://github.com/immortalwrt/homeproxy)** | 手动导入 `trojan://` 链接 | 基于官方 Sing-box 核心的代理插件，原生支持 |
