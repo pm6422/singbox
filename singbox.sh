@@ -283,6 +283,9 @@ EOF
   "route": {
     "rules": [
       {
+        "inbound": [
+          "tun-in"
+        ],
         "action": "sniff"
       },
       {
