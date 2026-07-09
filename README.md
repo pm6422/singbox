@@ -103,13 +103,12 @@ sudo bash singbox.sh
 > 3. **证书校验**：由于服务端默认生成自签名证书，客户端必须支持且开启 **`Allow Insecure / 允许不安全证书`** 选项以忽略证书链校验。
 
 > [!TIP]
-> iOS 平台下的所有代理客户端（Shadowrocket, Sing-box, Stash 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
+> iOS 平台下的所有代理客户端（Shadowrocket, Sing-box 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
 
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
 | **iOS / macOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选（App Store 付费下载） |
 | | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置（App Store 免费下载） |
-| | **[Stash](https://apps.apple.com/app/stash/id1596063349)** | 采用 Mihomo 核心，完美支持（App Store 付费下载） |
 | | **[Sing-box (官方) - Mac 端](https://github.com/SagerNet/sing-box/releases)** | 完美支持（可直接在 GitHub 下载 `.dmg` 包手动安装） |
 | | *~~Sing-box (官方) - iOS 端~~* | *因苹果审核误判已从 App Store 下架，普通用户暂不可用* |
 | **Android** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，**推荐首选**（可通过 [Google Play](https://play.google.com/store/apps/details?id=io.nekohasekai.singbox) 商店下载） |
