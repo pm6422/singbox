@@ -216,12 +216,13 @@ EOF
     "servers": [
       {
         "tag": "dns-remote",
-        "address": "https://8.8.8.8/dns-query",
+        "type": "https",
+        "server": "8.8.8.8",
         "detour": "proxy"
       },
       {
         "tag": "dns-local",
-        "address": "local"
+        "type": "local"
       }
     ]
   },
