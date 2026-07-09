@@ -302,6 +302,8 @@ EOF
   }
 }
 EOF
+        # Automatically format and migrate client configuration
+        docker run --rm -v "$(pwd)/config:/etc/sing-box" ghcr.io/sagernet/sing-box:latest format -w -c /etc/sing-box/${username}_client.json 2>/dev/null || true
         SUB_HASH=$(echo -n "$UUID" | openssl dgst -md5 | awk '{print $NF}')
         cp config/${username}_client.json config/subs/${SUB_HASH}.json
     done
@@ -359,6 +361,8 @@ EOF
   ]
 }
 EOF
+    # Automatically format and migrate server configuration
+    docker run --rm -v "$(pwd)/config:/etc/sing-box" ghcr.io/sagernet/sing-box:latest format -w -c /etc/sing-box/config.json 2>/dev/null || true
 
     # Save links
     echo -n "$NEW_CLIENT_LINKS" > config/client_links.txt
