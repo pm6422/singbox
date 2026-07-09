@@ -376,7 +376,7 @@ action_install() {
     setup_configurations
     
     log_info "Deploying Sing-box container..."
-    docker compose up -d
+    docker compose up -d --force-recreate
     
     # Wait for service initialization
     sleep 3
