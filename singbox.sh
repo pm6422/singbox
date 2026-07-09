@@ -112,9 +112,9 @@ EOF
                        || grep '"private_key"' config/config.json | head -n 1 | cut -d '"' -f 4 \
                        || echo "")
         
-        # Extract short id
-        EXISTING_SID=$(python3 -c "import json; print(json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id'][0])" 2>/dev/null \
-                       || python -c "import json; print(json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id'][0])" 2>/dev/null \
+        # Extract short id (handle both array ["id"] and string "id" formats)
+        EXISTING_SID=$(python3 -c "import json; sid=json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id']; print(sid[0] if isinstance(sid, list) else sid)" 2>/dev/null \
+                       || python -c "import json; sid=json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id']; print(sid[0] if isinstance(sid, list) else sid)" 2>/dev/null \
                        || grep -A 1 '"short_id"' config/config.json | grep -v '"short_id"' | cut -d '"' -f 4 | tr -d ' ' \
                        || echo "")
         
