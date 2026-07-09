@@ -173,6 +173,8 @@ EOF
 
     # Clean up old client config files to prevent deleted users' configs from lingering
     rm -f config/*_client.json
+    mkdir -p config/subs
+    rm -f config/subs/*.json
 
     # Process each user
     USERS_JSON=""
@@ -300,6 +302,8 @@ EOF
   }
 }
 EOF
+        SUB_HASH=$(echo -n "$UUID" | openssl dgst -md5 | awk '{print $NF}')
+        cp config/${username}_client.json config/subs/${SUB_HASH}.json
     done
 
     # Write config.json
@@ -454,15 +458,30 @@ action_show_links() {
         local user_name=$(echo "$line" | cut -d ':' -f 1)
         local link_url=$(echo "$line" | cut -d ' ' -f 2-)
         echo -e "$i. ${YELLOW}[User: $user_name]${NC}"
-        echo -e "${GREEN}$link_url${NC}"
-        if [ -f "config/${user_name}_client.json" ]; then
-            echo -e "Client JSON config saved to: ${BLUE}config/${user_name}_client.json${NC}"
-        fi
+        echo -e "VLESS Share Link: ${GREEN}$link_url${NC}"
         if [ "$has_qrencode" = true ]; then
-            echo -e "${YELLOW}[QR Code for $user_name]${NC}"
+            echo -e "${YELLOW}[QR Code for VLESS Share Link]${NC}"
             qrencode -t ansiutf8 "$link_url"
         else
             log_warn "qrencode is not installed. Cannot display QR code."
+        fi
+        
+        # Sing-box client remote profile link
+        local uuid_extracted=$(echo "$link_url" | cut -d '/' -f 3 | cut -d '@' -f 1)
+        local conn_addr_extracted=$(echo "$link_url" | cut -d '@' -f 2 | cut -d ':' -f 1)
+        local sub_hash_extracted=$(echo -n "$uuid_extracted" | openssl dgst -md5 | awk '{print $NF}')
+        local sub_url_val="http://${conn_addr_extracted}:8080/subs/${sub_hash_extracted}.json"
+        local url_encoded_sub=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$sub_url_val'''))" 2>/dev/null || echo -n "$sub_url_val" | sed 's/:/%3A/g; s/\//%2F/g')
+        local singbox_import_link="sing-box://import-remote-profile?url=${url_encoded_sub}#singbox-${user_name}"
+        
+        echo -e "Sing-box Client Import Link: ${BLUE}${singbox_import_link}${NC}"
+        if [ "$has_qrencode" = true ]; then
+            echo -e "${YELLOW}[QR Code for Sing-box Client Import]${NC}"
+            qrencode -t ansiutf8 "$singbox_import_link"
+        fi
+        
+        if [ -f "config/${user_name}_client.json" ]; then
+            echo -e "Client JSON config saved locally: ${BLUE}config/${user_name}_client.json${NC}"
         fi
         echo ""
         i=$((i+1))

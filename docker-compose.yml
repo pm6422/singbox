@@ -10,3 +10,12 @@ services:
     volumes:
       - "./config:/etc/sing-box"
     command: run -c /etc/sing-box/config.json
+
+  sub-server:
+    image: nginx:alpine
+    container_name: sub-server
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - "./config/subs:/usr/share/nginx/html/subs:ro"

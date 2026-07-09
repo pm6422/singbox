@@ -55,7 +55,8 @@ graph TD
     ├── users.txt            # [用户维护] 每一行配置一个用户名
     ├── config.json          # [自动生成] 服务端 sing-box 主配置文件
     ├── client_links.txt     # [自动生成] 备份的客户端直连订阅链接
-    └── <username>_client.json # [自动生成] 专为官方 Sing-box 客户端定制的 JSON 配置文件
+    ├── <username>_client.json # [自动生成] 专为官方 Sing-box 客户端定制的 JSON 配置文件
+    └── subs/                # [自动生成] 订阅分发目录，映射至 Sub Server 用于官方扫码一键导入
 ```
 
 ---
