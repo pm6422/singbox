@@ -171,6 +171,9 @@ EOF
         fi
     fi
 
+    # Clean up old client config files to prevent deleted users' configs from lingering
+    rm -f config/*_client.json
+
     # Process each user
     USERS_JSON=""
     NEW_CLIENT_LINKS=""
@@ -211,6 +214,106 @@ EOF
         # Generate client link
         LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
+
+        # Generate client JSON config
+        cat <<EOF > config/${username}_client.json
+{
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-remote",
+        "address": "https://8.8.8.8/dns-query",
+        "detour": "proxy"
+      },
+      {
+        "tag": "dns-local",
+        "address": "223.5.5.5",
+        "detour": "direct"
+      }
+    ],
+    "rules": [
+      {
+        "outbound": "any",
+        "server": "dns-local"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "dns-remote"
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "interface_name": "tun0",
+      "inet4_address": "172.19.0.1/30",
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "system",
+      "sniff": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "$CONNECTION_ADDRESS",
+      "server_port": 443,
+      "uuid": "$UUID",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "$PUBLIC_KEY",
+          "short_id": "$SHORT_ID"
+        }
+      },
+      "packet_encoding": "xudp"
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "dns",
+      "tag": "dns-out"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "outbound": "dns-out"
+      },
+      {
+        "geoip": [
+          "private",
+          "cn"
+        ],
+        "geosite": [
+          "private",
+          "cn"
+        ],
+        "outbound": "direct"
+      }
+    ]
+  }
+}
+EOF
     done
 
     # Write config.json
@@ -359,6 +462,9 @@ action_show_links() {
         local link_url=$(echo "$line" | cut -d ' ' -f 2-)
         echo -e "$i. ${YELLOW}[User: $user_name]${NC}"
         echo -e "${GREEN}$link_url${NC}"
+        if [ -f "config/${user_name}_client.json" ]; then
+            echo -e "Client JSON config saved to: ${BLUE}config/${user_name}_client.json${NC}"
+        fi
         if [ "$has_qrencode" = true ]; then
             echo -e "${YELLOW}[QR Code for $user_name]${NC}"
             qrencode -t ansiutf8 "$link_url"
