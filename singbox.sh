@@ -231,7 +231,7 @@ EOF
     "servers": [
       {
         "tag": "dns-remote",
-        "type": "https",
+        "type": "udp",
         "server": "8.8.8.8",
         "detour": "proxy"
       },
