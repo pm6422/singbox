@@ -301,7 +301,9 @@ EOF
     }
   ],
   "route": {
-    "default_domain_resolver": "dns-local",
+    "default_domain_resolver": {
+      "server": "dns-local"
+    },
     "rules": [
       {
         "inbound": [
@@ -341,7 +343,9 @@ EOF
     ]
   },
   "route": {
-    "default_domain_resolver": "dns-local"
+    "default_domain_resolver": {
+      "server": "dns-local"
+    }
   },
   "inbounds": [
     {
