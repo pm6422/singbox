@@ -253,8 +253,7 @@ EOF
           "enabled": true,
           "fingerprint": "chrome"
         }
-      },
-      "packet_encoding": "xudp"
+      }
     },
     {
       "type": "direct",
