@@ -250,16 +250,14 @@ EOF
     "servers": [
       {
         "tag": "dns-remote",
-        "type": "udp",
-        "server": "8.8.8.8",
+        "address": "8.8.8.8",
         "detour": "proxy"
       },
       {
         "tag": "dns-local",
-        "type": "local"
+        "address": "local"
       }
-    ],
-    "final": "dns-remote"
+    ]
   },
   "inbounds": [
     {
@@ -338,8 +336,7 @@ EOF
     "servers": [
       {
         "tag": "dns-local",
-        "type": "udp",
-        "server": "8.8.8.8"
+        "address": "8.8.8.8"
       }
     ]
   },
