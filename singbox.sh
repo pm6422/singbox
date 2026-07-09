@@ -171,18 +171,6 @@ EOF
         fi
     fi
 
-    # Resolve domain to IP for client config (eliminates DNS bootstrap dependency)
-    if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-        SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
-    else
-        SERVER_CONNECT_IP=$(dig +short A "$CONNECTION_ADDRESS" 2>/dev/null | grep -E '^[0-9]+' | head -1)
-        if [ -z "$SERVER_CONNECT_IP" ]; then
-            log_warn "Could not resolve $CONNECTION_ADDRESS to IP, using domain directly."
-            SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
-        else
-            log_info "Resolved $CONNECTION_ADDRESS -> $SERVER_CONNECT_IP (used in client config)"
-        fi
-    fi
 
 
     # Clean up ALL generated config files atomically to prevent stale files from lingering.
@@ -228,7 +216,7 @@ EOF
         USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"uuid\": \"$UUID\", \"flow\": \"xtls-rprx-vision\"}"
 
         # Generate client link
-        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=itunes.apple.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
+        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=dl.google.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
 
         # Generate client JSON config
@@ -270,13 +258,13 @@ EOF
     {
       "type": "vless",
       "tag": "proxy",
-      "server": "$SERVER_CONNECT_IP",
+      "server": "$CONNECTION_ADDRESS",
       "server_port": 443,
       "uuid": "$UUID",
       "flow": "xtls-rprx-vision",
       "tls": {
         "enabled": true,
-        "server_name": "itunes.apple.com",
+        "server_name": "dl.google.com",
         "utls": {
           "enabled": true,
           "fingerprint": "chrome"
@@ -287,7 +275,8 @@ EOF
           "short_id": "$SHORT_ID"
         }
       },
-      "packet_encoding": "xudp"
+      "packet_encoding": "xudp",
+      "domain_resolver": "dns-local"
     },
     {
       "type": "direct",
@@ -349,11 +338,11 @@ EOF
       ],
       "tls": {
         "enabled": true,
-        "server_name": "itunes.apple.com",
+        "server_name": "dl.google.com",
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "itunes.apple.com",
+            "server": "dl.google.com",
             "server_port": 443
           },
           "private_key": "$PRIVATE_KEY",
