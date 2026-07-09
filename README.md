@@ -115,7 +115,7 @@ sudo bash singbox.sh
 | **Android** | **[Surfboard](https://play.google.com/store/apps/details?id=com.getsurfboard)** | 界面精致美观，完美支持 Trojan 协议，**推荐首选** |
 | | **[Karing](https://karing.app)** | 界面现代美观，支持多种规则配置 |
 | **Windows** | **[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases)** | 推荐使用，基于新版 Mihomo 内核 |
-| | **[Karing](https://karing.app)** | 极简现代化多协议代理客户端 |
+| | **[Karing](https://karing.app)** | 界面现代美观，支持多种规则配置 |
 | **OpenWrt** | **[OpenClash](https://github.com/vernesong/OpenClash)** | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
 | | **[PassWall](https://github.com/xiaorouji/openwrt-passwall)** | 选用 Xray / Sing-box 内核即可连通 |
 | | **[HomeProxy](https://github.com/immortalwrt/homeproxy)** | 基于官方 Sing-box 核心的代理插件，原生支持 |
