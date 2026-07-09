@@ -317,7 +317,8 @@ EOF
     "servers": [
       {
         "tag": "dns-local",
-        "type": "local"
+        "type": "udp",
+        "server": "8.8.8.8"
       }
     ]
   },
