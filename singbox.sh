@@ -292,14 +292,14 @@ EOF
         "action": "sniff"
       },
       {
-        "protocol": "dns",
-        "action": "hijack-dns"
-      },
-      {
         "ip_cidr": [
           "223.5.5.5/32"
         ],
         "outbound": "direct"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
       },
       {
         "ip_is_private": true,
