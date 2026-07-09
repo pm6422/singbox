@@ -425,7 +425,7 @@ action_show_links() {
     fi
 
     echo -e "${YELLOW}------------------------------------------${NC}"
-    echo -e "${YELLOW}       Client VLESS Links & QR Codes      ${NC}"
+    echo -e "${YELLOW}       Client Trojan Links & QR Codes     ${NC}"
     echo -e "${YELLOW}------------------------------------------${NC}"
     
     local i=1
@@ -433,9 +433,9 @@ action_show_links() {
         local user_name=$(echo "$line" | cut -d ':' -f 1)
         local link_url=$(echo "$line" | cut -d ' ' -f 2-)
         echo -e "$i. ${YELLOW}[User: $user_name]${NC}"
-        echo -e "VLESS Share Link: ${GREEN}$link_url${NC}"
+        echo -e "Trojan Share Link: ${GREEN}$link_url${NC}"
         if [ "$has_qrencode" = true ]; then
-            echo -e "${YELLOW}[QR Code for VLESS Share Link]${NC}"
+            echo -e "${YELLOW}[QR Code for Trojan Share Link]${NC}"
             qrencode -t ansiutf8 "$link_url"
         else
             log_warn "qrencode is not installed. Cannot display QR code."
@@ -558,7 +558,7 @@ show_menu() {
     echo -e " 4. Restart Service"
     echo -e " 5. Uninstall Service"
     echo -e " 6. Update Sing-box Version"
-    echo -e " 7. Show VLESS Links & QR Codes"
+    echo -e " 7. Show Trojan Links & QR Codes"
     echo -e " 8. Add User"
     echo -e " 9. Delete User"
     echo -e " 10. View Real-time Logs"

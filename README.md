@@ -84,7 +84,7 @@ sudo bash singbox.sh
 4. **Restart Service**：重启 Sing-box 容器使配置生效。
 5. **Uninstall Service**：彻底清理服务（包含容器清理、镜像删除以及整个 `config/` 目录的抹除）。
 6. **Update Sing-box Version**：一键拉取最新的官方镜像并热重启，升级完成后自动打印最新运行的内核版本。
-7. **Show VLESS Links & QR Codes**：列出所有用户的 VLESS 链接，并可交互式选择在终端控制台直接渲染扫码二维码。
+7. **Show Trojan Links & QR Codes**：列出所有用户的 Trojan 链接，并可交互式选择在终端控制台直接渲染扫码二维码。
 8. **Add User**：交互式添加新用户（自动增量重载，**完全保留已有老用户的 UUID 与密钥**，对其不产生任何干扰）。
 9. **Delete User**：交互式删除用户，选择序号即可将对应用户安全清除并重载服务。
 10. **View Real-time Logs**：实时查看代理日志（自动携带 `--tail=100` 安全限制，防止历史日志刷屏卡死终端）。
@@ -93,34 +93,30 @@ sudo bash singbox.sh
 
 ## 📱 客户端支持矩阵
 
-复制部署输出的 `vless://` 链接并直接导入至以下推荐的主流客户端：
+复制部署输出的 `trojan://` 链接并直接导入至以下推荐的主流客户端：
 
 > [!IMPORTANT]
 > **💡 协议兼容性与内核要求**
-> 本服务部署的节点基于最新的 **VLESS-XTLS-Reality** 协议。如果您需要使用非推荐列表中的其他第三方客户端，请确保该客户端满足以下全部技术指标：
-> 1. **基础协议**：必须原生支持 **`VLESS`** 传输协议。
-> 2. **无证书安全**：必须支持 **`Reality`** 物理证书借用伪装技术。
-> 3. **流控选项**：必须支持 **`xtls-rprx-vision`** (Vision 流控模式)。
-> 4. **底层内核**：客户端内核必须使用较新版本的 **`Xray-core (v1.8.0+)`** 或 **`sing-box (v1.3.0+)`**。如 Surge、Quantumult X 等采用非标准或老旧内核的客户端，将完全无法识别和连接此节点。
+> 本服务部署的节点基于标准的 **Trojan** 协议并使用 TLS 加密。如果您需要使用非推荐列表中的其他第三方客户端，请确保该客户端满足以下全部技术指标：
+> 1. **基础协议**：必须原生支持 **`Trojan`** 传输协议。
+> 2. **安全传输**：必须支持 **`TLS`** 加密传输。
+> 3. **证书校验**：由于服务端默认生成自签名证书，客户端必须支持且开启 **`Allow Insecure / 允许不安全证书`** 选项以忽略证书链校验。
 
 > [!TIP]
-> iOS 平台下的所有代理客户端（Shadowrocket, Sing-box, Hiddify, Stash 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
+> iOS 平台下的所有代理客户端（Shadowrocket, Sing-box, Stash 等）均已从中国大陆区 App Store 下架，下载时**需使用非中国大陆区的 Apple ID**。
 
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
 | **iOS / macOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选（iOS 商店付费下载） |
-| | **[Hiddify](https://github.com/hiddify/hiddify-app/releases)** | 免费跨平台工具（可通过 [App Store](https://apps.apple.com/us/app/hiddify-proxy-vpn/id6596777532) 免费下载，推荐） |
 | | **[Karing](https://github.com/KaringX/karing/releases)** | 界面现代美观，支持多种规则配置（可从 App Store 下载） |
 | | **[Stash](https://apps.apple.com/app/stash/id1596063349)** | 采用 Mihomo 核心，完美支持（iOS 商店付费下载） |
 | | **[Sing-box (官方) - Mac 端](https://github.com/SagerNet/sing-box/releases)** | 完美支持（可直接在 GitHub 下载 `.dmg` 包手动安装） |
 | | *~~Sing-box (官方) - iOS 端~~* | *因苹果审核误判已从 App Store 下架，普通用户暂不可用* |
 | **Android** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，**推荐首选**（可通过 [Google Play](https://play.google.com/store/apps/details?id=io.nekohasekai.singbox) 商店下载） |
-| | **[Hiddify](https://github.com/hiddify/hiddify-app/releases)** | 原生基于 Sing-box（可通过 [Google Play](https://play.google.com/store/apps/details?id=com.hiddify.app) 商店下载，推荐） |
 | | **[v2rayNG](https://github.com/2dust/v2rayNG/releases)** | 开源老牌客户端，支持 Reality（需前往 GitHub 下载 APK） |
 | | **[Nekobox](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases)** | 功能强大，支持一键测速与节点导入（需前往 GitHub 下载 APK） |
 | | **[Karing](https://github.com/KaringX/karing/releases)** | 跨平台现代化客户端（支持从 [Google Play](https://play.google.com/store/apps/details?id=com.karing) 下载） |
 | **Windows** | **[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases)** | 推荐使用，基于新版 Mihomo 内核 |
-| | **[Hiddify](https://github.com/hiddify/hiddify-app/releases)** | 原生基于官方 Sing-box 内核的绿色直连客户端 |
 | | **[v2rayN](https://github.com/2dust/v2rayN/releases)** | 切换至 Xray/Sing-box 内核后可正常连通 |
 | | **[Nekobox (NekoRay)](https://github.com/MatsuriDayo/nekoray/releases)** | 客户端原生支持，延迟低 |
 | | **[Karing](https://github.com/KaringX/karing/releases)** | 极简现代化多协议代理客户端 |
