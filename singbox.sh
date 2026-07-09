@@ -232,8 +232,7 @@ EOF
       },
       {
         "tag": "dns-local",
-        "type": "udp",
-        "server": "223.5.5.5"
+        "type": "local"
       }
     ],
     "final": "dns-remote"
@@ -272,7 +271,8 @@ EOF
           "short_id": "$SHORT_ID"
         }
       },
-      "packet_encoding": "xudp"
+      "packet_encoding": "xudp",
+      "domain_resolver": "dns-local"
     },
     {
       "type": "direct",
@@ -280,6 +280,7 @@ EOF
     }
   ],
   "route": {
+    "default_domain_resolver": "dns-local",
     "rules": [
       {
         "inbound": [
@@ -307,6 +308,17 @@ EOF
   "log": {
     "level": "info",
     "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-local",
+        "type": "local"
+      }
+    ]
+  },
+  "route": {
+    "default_domain_resolver": "dns-local"
   },
   "inbounds": [
     {
