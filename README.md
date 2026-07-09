@@ -107,11 +107,11 @@ sudo bash singbox.sh
 
 | 平台 | 推荐客户端 | 协议支持说明 |
 | :--- | :--- | :--- |
-| **iOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选（App Store 付费下载） |
-| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置（App Store 免费下载） |
-| **macOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 完美支持（M系列芯片 Mac 可从 Mac App Store 下载安装） |
-| | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，完美支持（可直接在 GitHub 下载 `.dmg` 包手动安装） |
-| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置（可从 App Store 下载） |
+| **iOS** | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 原生完美支持，推荐首选 |
+| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置 |
+| **macOS** | **[Sing-box (官方)](https://github.com/SagerNet/sing-box/releases)** | 官方客户端，推荐首选 |
+| | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 完美支持 |
+| | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置 |
 | **Android** | **[Sing-box (官方)](https://play.google.com/store/apps/details?id=io.nekohasekai.sfa)** | 官方客户端，推荐首选（可通过 Google Play 商店下载） |
 | | **[Karing](https://karing.app)** | 跨平台现代化客户端（可直接在官网下载 APK 安装包） |
 | **Windows** | **[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases)** | 推荐使用，基于新版 Mihomo 内核 |
