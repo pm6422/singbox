@@ -99,45 +99,11 @@ EOF
         exit 1
     fi
 
-    # Try to reuse existing Reality keys if config.json and client_links.txt exist
-    REUSED_KEYS=false
-    PRIVATE_KEY=""
-    PUBLIC_KEY=""
-    SHORT_ID=""
-
-    if [ -f "config/config.json" ] && [ -f "config/client_links.txt" ]; then
-        # Extract private key
-        EXISTING_PRIV=$(python3 -c "import json; print(json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['private_key'])" 2>/dev/null \
-                       || python -c "import json; print(json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['private_key'])" 2>/dev/null \
-                       || grep '"private_key"' config/config.json | head -n 1 | cut -d '"' -f 4 \
-                       || echo "")
-        
-        # Extract short id (handle both array ["id"] and string "id" formats)
-        EXISTING_SID=$(python3 -c "import json; sid=json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id']; print(sid[0] if isinstance(sid, list) else sid)" 2>/dev/null \
-                       || python -c "import json; sid=json.load(open('config/config.json'))['inbounds'][0]['tls']['reality']['short_id']; print(sid[0] if isinstance(sid, list) else sid)" 2>/dev/null \
-                       || grep -A 1 '"short_id"' config/config.json | grep -v '"short_id"' | cut -d '"' -f 4 | tr -d ' ' \
-                       || echo "")
-        
-        # Extract public key from client_links.txt
-        EXISTING_PBK=$(grep -o "pbk=[^&]*" config/client_links.txt | head -n 1 | cut -d '=' -f 2 || echo "")
-
-        if [ -n "$EXISTING_PRIV" ] && [ -n "$EXISTING_SID" ] && [ -n "$EXISTING_PBK" ]; then
-            PRIVATE_KEY=$(echo "$EXISTING_PRIV" | tr -d '\r\n')
-            PUBLIC_KEY=$(echo "$EXISTING_PBK" | tr -d '\r\n')
-            SHORT_ID=$(echo "$EXISTING_SID" | tr -d '\r\n')
-            REUSED_KEYS=true
-        fi
-    fi
-
-    # Generate new Reality keys if we couldn't reuse
-    if [ "$REUSED_KEYS" = false ]; then
-        log_info "Generating new Reality credentials..."
-        # Pull image first to generate keypair
-        docker pull ghcr.io/sagernet/sing-box:latest
-        KEYPAIR=$(docker run --rm ghcr.io/sagernet/sing-box:latest generate reality-keypair)
-        PRIVATE_KEY=$(echo "$KEYPAIR" | awk '/PrivateKey/ {print $2}' | tr -d '\r\n')
-        PUBLIC_KEY=$(echo "$KEYPAIR" | awk '/PublicKey/ {print $2}' | tr -d '\r\n')
-        SHORT_ID=$(openssl rand -hex 8 | tr -d '\r\n')
+    # Generate self-signed TLS certificates for Trojan if they don't exist
+    if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
+        log_info "Generating self-signed TLS certificates for Trojan..."
+        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+        chmod 644 config/cert.pem config/cert.key
     fi
 
     # Detect public IP
@@ -207,13 +173,13 @@ EOF
         UUID=""
         # Try to find existing UUID to keep client connection intact
         if [ -f "config/config.json" ]; then
-            UUID=$(python3 -c "import json; config = json.load(open('config/config.json')); users = config['inbounds'][0]['users']; print(next((u['uuid'] for u in users if u['name'] == '$username'), ''))" 2>/dev/null \
-                   || python -c "import json; config = json.load(open('config/config.json')); users = config['inbounds'][0]['users']; print(next((u['uuid'] for u in users if u['name'] == '$username'), ''))" 2>/dev/null \
+            UUID=$(python3 -c "import json; config = json.load(open('config/config.json')); users = config['inbounds'][0]['users']; print(next((u.get('password', u.get('uuid', '')) for u in users if u['name'] == '$username'), ''))" 2>/dev/null \
+                   || python -c "import json; config = json.load(open('config/config.json')); users = config['inbounds'][0]['users']; print(next((u.get('password', u.get('uuid', '')) for u in users if u['name'] == '$username'), ''))" 2>/dev/null \
                    || echo "")
             
             # Fallback to grep
             if [ -z "$UUID" ] && [ -f "config/client_links.txt" ]; then
-                EXISTING_LINE=$(grep "^${username}: vless://" config/client_links.txt || echo "")
+                EXISTING_LINE=$(grep "^${username}: trojan://" config/client_links.txt || grep "^${username}: vless://" config/client_links.txt || echo "")
                 if [ -n "$EXISTING_LINE" ]; then
                     UUID=$(echo "$EXISTING_LINE" | cut -d '/' -f 3 | cut -d '@' -f 1)
                 fi
@@ -224,7 +190,7 @@ EOF
             UUID=$(echo "$UUID" | tr -d '\r\n')
         else
             UUID=$(docker run --rm ghcr.io/sagernet/sing-box:latest generate uuid | tr -d '\r\n')
-            log_info "Generated a new UUID for user '$username'."
+            log_info "Generated a new password/UUID for user '$username'."
         fi
 
         # Build users array JSON
@@ -233,10 +199,10 @@ EOF
         else
             USERS_JSON="$USERS_JSON,"
         fi
-        USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"uuid\": \"$UUID\", \"flow\": \"xtls-rprx-vision\"}"
+        USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"password\": \"$UUID\"}"
 
         # Generate client link
-        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=dl.google.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
+        LINK="trojan://$UUID@$CONNECTION_ADDRESS:443?sni=$CONNECTION_ADDRESS&allowInsecure=1#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
 
         # Generate client JSON config
@@ -274,23 +240,18 @@ EOF
   ],
   "outbounds": [
     {
-      "type": "vless",
+      "type": "trojan",
       "tag": "proxy",
       "server": "$SERVER_CONNECT_IP",
       "server_port": 443,
-      "uuid": "$UUID",
-      "flow": "xtls-rprx-vision",
+      "password": "$UUID",
       "tls": {
         "enabled": true,
-        "server_name": "dl.google.com",
+        "server_name": "$CONNECTION_ADDRESS",
+        "insecure": true,
         "utls": {
           "enabled": true,
           "fingerprint": "chrome"
-        },
-        "reality": {
-          "enabled": true,
-          "public_key": "$PUBLIC_KEY",
-          "short_id": "$SHORT_ID"
         }
       },
       "packet_encoding": "xudp"
@@ -350,8 +311,8 @@ EOF
   },
   "inbounds": [
     {
-      "type": "vless",
-      "tag": "vless-in",
+      "type": "trojan",
+      "tag": "trojan-in",
       "listen": "::",
       "listen_port": 443,
       "users": [
@@ -359,18 +320,8 @@ EOF
       ],
       "tls": {
         "enabled": true,
-        "server_name": "dl.google.com",
-        "reality": {
-          "enabled": true,
-          "handshake": {
-            "server": "dl.google.com",
-            "server_port": 443
-          },
-          "private_key": "$PRIVATE_KEY",
-          "short_id": [
-            "$SHORT_ID"
-          ]
-        }
+        "key_path": "/etc/sing-box/cert.key",
+        "certificate_path": "/etc/sing-box/cert.pem"
       }
     }
   ],
