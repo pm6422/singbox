@@ -236,7 +236,7 @@ EOF
       ],
       "auto_route": true,
       "strict_route": true,
-      "stack": "system"
+      "stack": "mixed"
     }
   ],
   "outbounds": [
