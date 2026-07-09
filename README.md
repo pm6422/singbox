@@ -113,7 +113,7 @@ sudo bash singbox.sh
 | | **[Shadowrocket](https://apps.apple.com/app/shadowrocket/id932747118)** | 完美支持 |
 | | **[Karing](https://apps.apple.com/us/app/karing/id6472431552)** | 界面现代美观，支持多种规则配置 |
 | **Android** | **[Sing-box (官方)](https://play.google.com/store/apps/details?id=io.nekohasekai.sfa)** | 官方客户端，**推荐首选** |
-| | **[Karing](https://karing.app)** | 跨平台现代化客户端（可直接在官网下载 APK 安装包） |
+| | **[Karing](https://karing.app)** | 界面现代美观，支持多种规则配置 |
 | **Windows** | **[Clash Verge Rev](https://github.com/clash-verge-rev/clash-verge-rev/releases)** | 推荐使用，基于新版 Mihomo 内核 |
 | | **[Karing](https://karing.app)** | 极简现代化多协议代理客户端 |
 | **OpenWrt** | **[OpenClash](https://github.com/vernesong/OpenClash)** | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
