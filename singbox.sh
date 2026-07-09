@@ -235,7 +235,7 @@ EOF
       {
         "tag": "dns-local",
         "type": "udp",
-        "server": "1.1.1.1"
+        "server": "223.5.5.5"
       }
     ],
     "final": "dns-remote"
@@ -293,7 +293,7 @@ EOF
       },
       {
         "ip_cidr": [
-          "1.1.1.1/32"
+          "223.5.5.5/32"
         ],
         "outbound": "direct"
       },
