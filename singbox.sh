@@ -217,7 +217,7 @@ EOF
         USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"uuid\": \"$UUID\", \"flow\": \"xtls-rprx-vision\"}"
 
         # Generate client link
-        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=addons.mozilla.org&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
+        LINK="vless://$UUID@$CONNECTION_ADDRESS:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.apple.com&pbk=$PUBLIC_KEY&sid=$SHORT_ID#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
 
         # Generate client JSON config
@@ -265,7 +265,7 @@ EOF
       "flow": "xtls-rprx-vision",
       "tls": {
         "enabled": true,
-        "server_name": "addons.mozilla.org",
+        "server_name": "www.apple.com",
         "utls": {
           "enabled": true,
           "fingerprint": "chrome"
@@ -343,7 +343,7 @@ EOF
         "reality": {
           "enabled": true,
           "handshake": {
-            "server": "addons.mozilla.org",
+            "server": "www.apple.com",
             "server_port": 443
           },
           "private_key": "$PRIVATE_KEY",
