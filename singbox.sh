@@ -342,34 +342,33 @@ action_show_links() {
         return
     fi
 
+    install_qrencode
+
+    local has_qrencode=false
+    if command -v qrencode &> /dev/null; then
+        has_qrencode=true
+    fi
+
     echo -e "${YELLOW}------------------------------------------${NC}"
-    echo -e "${YELLOW}            Client VLESS Links            ${NC}"
+    echo -e "${YELLOW}       Client VLESS Links & QR Codes      ${NC}"
     echo -e "${YELLOW}------------------------------------------${NC}"
     
     local i=1
-    local links=()
-    local names=()
     while IFS= read -r line || [[ -n "$line" ]]; do
         local user_name=$(echo "$line" | cut -d ':' -f 1)
         local link_url=$(echo "$line" | cut -d ' ' -f 2-)
-        links+=("$link_url")
-        names+=("$user_name")
         echo -e "$i. ${YELLOW}[User: $user_name]${NC}"
         echo -e "${GREEN}$link_url${NC}"
+        if [ "$has_qrencode" = true ]; then
+            echo -e "${YELLOW}[QR Code for $user_name]${NC}"
+            qrencode -t ansiutf8 "$link_url"
+        else
+            log_warn "qrencode is not installed. Cannot display QR code."
+        fi
         echo ""
         i=$((i+1))
     done < config/client_links.txt
-    
     echo -e "${YELLOW}------------------------------------------${NC}"
-    read -p "Would you like to generate a QR Code for a user? Enter number [1-${#links[@]}] (or Press Enter to skip): " qr_choice
-    if [[ "$qr_choice" =~ ^[0-9]+$ ]] && [ "$qr_choice" -le ${#links[@]} ] && [ "$qr_choice" -gt 0 ]; then
-        local chosen_link="${links[$((qr_choice-1))]}"
-        local chosen_name="${names[$((qr_choice-1))]}"
-        install_qrencode
-        echo -e "\n${YELLOW}[QR Code for $chosen_name]${NC}"
-        qrencode -t ansiutf8 "$chosen_link"
-        echo ""
-    fi
 }
 
 action_add_user() {
