@@ -184,10 +184,11 @@ EOF
         fi
     fi
 
-    # Clean up old client config files to prevent deleted users' configs from lingering
-    rm -f config/*_client.json
-    mkdir -p config/subs
-    rm -f config/subs/*.json
+
+    # Clean up ALL generated config files atomically to prevent stale files from lingering.
+    # Using rm -rf + mkdir is safer than glob (glob silently fails when dir is empty or missing).
+    rm -f config/*_client.json          # per-user client configs
+    rm -rf config/subs && mkdir -p config/subs  # subscription files served by nginx
 
     # Process each user
     USERS_JSON=""
