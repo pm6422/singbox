@@ -1,11 +1,11 @@
 # 🚀 Sing-box Docker Server Manager
 
-> 基于 Docker 与 VLESS-XTLS-Reality 协议的极简、安全、高性能代理服务一键部署方案。
+> 基于 Docker 与 Trojan over TLS 协议的极简、安全、高性能代理服务一键部署方案。
 
 <p align="left">
   <img src="https://img.shields.io/badge/Core-Sing--box-blue?style=flat-square&logo=go" alt="Sing-box">
   <img src="https://img.shields.io/badge/Container-Docker-blue?style=flat-square&logo=docker" alt="Docker">
-  <img src="https://img.shields.io/badge/Protocol-VLESS--XTLS--Reality-orange?style=flat-square" alt="Protocol">
+  <img src="https://img.shields.io/badge/Protocol-Trojan--TLS-orange?style=flat-square" alt="Protocol">
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License">
 </p>
 
@@ -13,32 +13,32 @@
 
 ## 📖 项目简介
 
-本项目旨在通过高度自动化的脚本，在您的 Linux 服务器上一键拉取并部署官方最新的 **Sing-box** 代理服务端。服务独占 **`443`** 端口，借助 **Reality** 协议的证书借用特性，无需自备域名和证书，即可实现极高抗封锁性的加密数据传输。
+本项目旨在通过高度自动化的脚本，在您的 Linux 服务器上一键拉取并部署官方最新的 **Sing-box** 代理服务端。服务独占 **`443`** 端口，采用 **Trojan** 协议并基于自动生成的 10 年期自签名 TLS 证书，无需注册真实域名，即可实现极高抗封锁性的加密数据传输。
 
-### 🛡️ 工作原理与伪装架构
+### 🛡️ 工作原理与加密架构
 
-当流量到达您的服务器 `443` 端口时，Sing-box 会对其执行 TLS 验证。如果是来自您客户端的合法认证流量，将建立安全代理通道；如果是第三方主动探测或普通用户流量，则会无感重定向（回落）至目标网站。
+当流量到达您的服务器 `443` 端口时，Sing-box 会对其执行 TLS 验证。客户端使用 Trojan 协议并在建立 TLS 握手时利用配置好的密码完成身份认证，认证成功后建立安全代理通道。
 
 ```mermaid
 graph TD
-    Client["📱 客户端 (Shadowrocket / Stash / v2rayN 等)"] -->|发送 TLS 握手 SNI 伪装域名| Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
-    Server -->|验证 Reality 证书签名与密钥| Auth{"🔍 校验通过"}
-    Auth -->|是 合法代理请求| Proxy["🚀 建立加密隧道，转发至目标网站"]
-    Auth -->|否 主动探测或普通访问| Fallback["🔒 安全回落 - 流量转发至伪装网站"]
+    Client["📱 客户端 (Shadowrocket / Surfboard 等)"] -->|发起 TLS 连接 (支持自签名证书)| Server["🐳 Sing-box 容器 (监听宿主机 443 端口)"]
+    Server -->|验证 Trojan 密码凭证| Auth{"🔍 校验通过"}
+    Auth -->|是 合法代理请求| Proxy["🚀 建立加密隧道，转发目标网站流量"]
+    Auth -->|否 非法连接| Block["🔒 拒绝连接"]
     
     style Auth fill:#f9f,stroke:#333,stroke-width:2px
     style Proxy fill:#d4edda,stroke:#28a745,stroke-width:2px
-    style Fallback fill:#fff3cd,stroke:#ffc107,stroke-width:2px
+    style Block fill:#f8d7da,stroke:#dc3545,stroke-width:2px
 ```
 
 ---
 
 ## ✨ 核心特性
 
-*   🔒 **无感完美伪装**：采用先进的 Reality 偷渡技术，偷用大厂（默认 `dl.google.com`）合法的 TLSv1.3 证书进行混淆，完美逃避主动探测。
+*   🔒 **安全 TLS 加密传输**：基于标准的 Trojan 协议，使用自签名 TLS 证书进行端到端加密，防窃听，防主动探测。
 *   👥 **多用户管理文件化**：在 `config/users.txt` 中通过简单的按行增删用户名，即可全自动维护多用户节点。
-*   🔄 **非破坏性增量更新**：重运行部署脚本时，**自动保留已有老用户的 UUID 凭证与服务器私钥**。老用户无需重新导入配置，仅对新加入用户做增量派发，对移出的用户做即时停用。
-*   🔗 **一键导出直连与 JSON 配置**：部署完成或更新配置后，终端将以高亮色彩批量生成所有用户的专属 `vless://` 连接（可即刻扫码或复制导入客户端），并会在 `config/` 目录下自动生成专属于官方 Sing-box 客户端的 `<username>_client.json` 配置文件。
+*   🔄 **非破坏性增量更新**：重运行部署脚本时，**自动保留已有老用户的连接密码**。老用户无需重新导入配置，仅对新加入用户做增量派发，对移出的用户做即时停用。
+*   🔗 **一键导出订阅与 JSON 配置**：部署完成或更新配置后，终端将以高亮色彩批量生成所有用户的专属 `trojan://` 连接（可即刻扫码或复制导入客户端），并会在 `config/` 目录下自动生成专属于官方客户端的 `<username>_client.json` 配置文件。
 
 ---
 
@@ -85,7 +85,7 @@ sudo bash singbox.sh
 5. **Uninstall Service**：彻底清理服务（包含容器清理、镜像删除以及整个 `config/` 目录的抹除）。
 6. **Update Sing-box Version**：一键拉取最新的官方镜像并热重启，升级完成后自动打印最新运行的内核版本。
 7. **Show Trojan Links & QR Codes**：列出所有用户的 Trojan 链接，并可交互式选择在终端控制台直接渲染扫码二维码。
-8. **Add User**：交互式添加新用户（自动增量重载，**完全保留已有老用户的 UUID 与密钥**，对其不产生任何干扰）。
+8. **Add User**：交互式添加新用户（自动增量重载，**完全保留已有老用户的连接密码**，对其不产生任何干扰）。
 9. **Delete User**：交互式删除用户，选择序号即可将对应用户安全清除并重载服务。
 10. **View Real-time Logs**：实时查看代理日志（自动携带 `--tail=100` 安全限制，防止历史日志刷屏卡死终端）。
 
