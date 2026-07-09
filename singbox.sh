@@ -296,14 +296,7 @@ EOF
         "action": "hijack-dns"
       },
       {
-        "geoip": [
-          "private",
-          "cn"
-        ],
-        "geosite": [
-          "private",
-          "cn"
-        ],
+        "ip_is_private": true,
         "outbound": "direct"
       }
     ]
