@@ -1,7 +1,7 @@
 name: singbox-server
 services:
   sing-box:
-    image: ghcr.io/sagernet/sing-box:1.13.14
+    image: ghcr.io/sagernet/sing-box:v1.13.14
     container_name: sing-box
     restart: unless-stopped
     ports:
