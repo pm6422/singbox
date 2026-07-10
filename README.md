@@ -103,8 +103,7 @@ sudo bash singbox.sh
 | **Android** | **[Surfboard](https://github.com/getsurfboard/surfboard/releases)** | `trojan://` 链接 | 界面精致美观，完美支持 Trojan 协议，**推荐首选**（可前往 GitHub 下载 APK） |
 | | **[Karing](https://karing.app)** | `sing-box://` 链接  `trojan://` 链接 | 界面现代美观，支持多种规则配置 |
 | **Windows** | **[Karing](https://karing.app)** | `sing-box://` 链接 `trojan://` 链接 | 界面现代美观，支持多种规则配置，**推荐首选** |
-| **OpenWrt** | **[OpenClash](https://github.com/vernesong/OpenClash)** | `trojan://` 链接 | 选用 Mihomo (Clash.Meta) 内核后完美支持 |
-| | **[PassWall](https://github.com/Openwrt-Passwall/openwrt-passwall)** | `trojan://` 链接 | 选用 Xray / Sing-box 内核即可连通 |
+| **OpenWrt** | **[PassWall](https://github.com/Openwrt-Passwall/openwrt-passwall)** | `trojan://` 链接 | 选用 Xray / Sing-box 内核即可连通 |
 | | **[HomeProxy](https://github.com/immortalwrt/homeproxy)** | `trojan://` 链接 | 基于官方 Sing-box 核心的代理插件，原生支持 |
 
 ---
