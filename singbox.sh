@@ -137,10 +137,30 @@ EOF
         fi
     fi
 
-    # Generate self-signed TLS certificates for Trojan if they don't exist
+    # Generate self-signed TLS certificates for Trojan if missing or lacking SAN
+    local need_cert=false
     if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
-        log_info "Generating self-signed TLS certificates for Trojan..."
-        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+        need_cert=true
+    elif ! openssl x509 -noout -text -in config/cert.pem 2>/dev/null | grep -q "Subject Alternative Name"; then
+        log_warn "Existing TLS certificate relies on legacy Common Name without SAN. Regenerating..."
+        need_cert=true
+    fi
+
+    if [ "$need_cert" = true ]; then
+        log_info "Generating self-signed TLS certificates with SAN for Trojan..."
+        local san_list="DNS:proxy.local"
+        if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+            san_list="IP:${CONNECTION_ADDRESS},${san_list}"
+        else
+            san_list="DNS:${CONNECTION_ADDRESS},${san_list}"
+        fi
+
+        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
+            -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" \
+            -addext "subjectAltName=${san_list}" -days 3650 2>/dev/null \
+            || openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
+            -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+
         chmod 644 config/cert.pem config/cert.key
     fi
 
