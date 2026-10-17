@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Sing-box Server Management Panel
-set -e
+cd "$(dirname "$0")"
 
 # Color definitions
 RED='\033[0;31m'
@@ -99,13 +99,6 @@ EOF
         exit 1
     fi
 
-    # Generate self-signed TLS certificates for Trojan if they don't exist
-    if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
-        log_info "Generating self-signed TLS certificates for Trojan..."
-        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
-        chmod 644 config/cert.pem config/cert.key
-    fi
-
     # Detect public IP
     log_info "Detecting server public IP..."
     SERVER_IP=$(curl -s --max-time 5 https://api.ipify.org || curl -s --max-time 5 https://ifconfig.me || echo "")
@@ -115,6 +108,13 @@ EOF
     if [ -f "config/client_links.txt" ]; then
         # Try to extract the address used previously
         CONNECTION_ADDRESS=$(grep -o "@[^:]*" config/client_links.txt | head -n 1 | tr -d '@' || echo "")
+        if [ "$1" = "prompt" ] && [ -n "$CONNECTION_ADDRESS" ]; then
+            echo -e "${YELLOW}Current configured domain/IP: $CONNECTION_ADDRESS${NC}"
+            read -p "Keep this address? [Y/n]: " keep_addr
+            if [[ "$keep_addr" =~ ^[nN]$ ]]; then
+                CONNECTION_ADDRESS=""
+            fi
+        fi
     fi
 
     if [ -z "$CONNECTION_ADDRESS" ]; then
@@ -137,6 +137,13 @@ EOF
         fi
     fi
 
+    # Generate self-signed TLS certificates for Trojan if they don't exist
+    if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
+        log_info "Generating self-signed TLS certificates for Trojan..."
+        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+        chmod 644 config/cert.pem config/cert.key
+    fi
+
     # Resolve domain to IP for client config (eliminates DNS bootstrap dependency)
     if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
         SERVER_CONNECT_IP="$CONNECTION_ADDRESS"
@@ -155,8 +162,6 @@ EOF
             log_info "Resolved $CONNECTION_ADDRESS -> $SERVER_CONNECT_IP (used in client config)"
         fi
     fi
-
-
 
     # Clean up ALL generated config files atomically to prevent stale files from lingering.
     # Using rm -rf + mkdir is safer than glob (glob silently fails when dir is empty or missing).
@@ -189,7 +194,17 @@ EOF
         if [ -n "$UUID" ]; then
             UUID=$(echo "$UUID" | tr -d '\r\n')
         else
-            UUID=$(docker run --rm ghcr.io/sagernet/sing-box:latest generate uuid | tr -d '\r\n')
+            if [ -f /proc/sys/kernel/random/uuid ]; then
+                UUID=$(cat /proc/sys/kernel/random/uuid | tr -d '\r\n')
+            elif command -v uuidgen &> /dev/null; then
+                UUID=$(uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\r\n')
+            elif command -v python3 &> /dev/null; then
+                UUID=$(python3 -c "import uuid; print(uuid.uuid4())" | tr -d '\r\n')
+            elif command -v openssl &> /dev/null; then
+                UUID=$(openssl rand -hex 16 | sed -E 's/(.{8})(.{4})(.{4})(.{4})(.{12})/\1-\2-\3-\4-\5/')
+            else
+                UUID=$(docker run --rm ghcr.io/sagernet/sing-box:latest generate uuid 2>/dev/null | tr -d '\r\n')
+            fi
             log_info "Generated a new password/UUID for user '$username'."
         fi
 
@@ -262,6 +277,8 @@ EOF
     }
   ],
   "route": {
+    "auto_detect_interface": true,
+    "final": "proxy",
     "default_domain_resolver": {
       "server": "dns-local"
     },
@@ -344,7 +361,7 @@ action_install() {
     log_info "Starting environment setup..."
     check_root
     install_docker
-    setup_configurations
+    setup_configurations "prompt"
     
     log_info "Deploying Sing-box container..."
     docker compose up -d --force-recreate
@@ -379,7 +396,7 @@ action_stop() {
 
 action_restart() {
     log_info "Restarting Sing-box service..."
-    docker compose restart sing-box
+    docker compose restart
     log_info "Sing-box service restarted."
 }
 
@@ -509,8 +526,8 @@ action_delete_user() {
         fi
     done < config/users.txt
 
-    if [ ${#display_users[@]} -eq 0 ]; then
-        log_warn "No active users found to delete."
+    if [ ${#display_users[@]} -le 1 ]; then
+        log_warn "Only one user exists ('${display_users[0]}'). At least one active user is required. Cannot delete."
         return
     fi
 
@@ -542,7 +559,7 @@ action_delete_user() {
 
 action_logs() {
     log_info "Displaying real-time logs (Ctrl+C to exit)..."
-    docker compose logs -f --tail 100 sing-box
+    docker compose logs -f --tail 100 sing-box || true
 }
 
 # Print main menu

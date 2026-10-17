@@ -1,69 +1,11 @@
-#
-# Project specific excludes
-#
-
-
-#
-# Default excludes
-#
-
-# Binaries
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-*.war
-*.ear
-*.sar
-*.class
-
-# Maven 
-target/
-
-# IntelliJ project files 
-*.iml
-*.iws
-*.ipr
-.idea/
-
-# Eclipse project file
-.settings/
-.classpath
-.project
-
-# NetBeans specific
-nbproject/private/
-nbbuild/
-nbdist/
-nbactions.xml
-nb-configuration.xml
-
-
-# OS
+# OS files
 .DS_Store
+Thumbs.db
 
-# Misc
-pom.xml.bak
-src/main/webapp/app/constants.js
-
-# Node
-/node/
-node_tmp/
-node_modules/
-npm-debug.log.*
-/.awcache/*
-/.cache-loader/*
-
-# yarn
-yarn.lock
-.yarn/*
-
-package-lock.json
-pnpm-lock.yaml
-
-vite.generated.ts
-frontend/generated
+# Sing-box generated credentials & configs
+config/cert.key
+config/cert.pem
+config/config.json
+config/client_links.txt
+config/*_client.json
+config/subs/
