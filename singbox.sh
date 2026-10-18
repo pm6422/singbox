@@ -378,8 +378,7 @@ EOF
     "servers": [
       {
         "tag": "dns-local",
-        "type": "udp",
-        "server": "8.8.8.8"
+        "type": "local"
       }
     ]
   },
@@ -397,7 +396,11 @@ $cert_provider_json  "inbounds": [
       "users": [
         $USERS_JSON
       ],
-$server_tls_json
+$server_tls_json,
+      "fallback": {
+        "server": "sub-server",
+        "server_port": 80
+      }
     }
   ],
   "outbounds": [
@@ -520,7 +523,7 @@ action_show_links() {
         local uuid_extracted=$(echo "$link_url" | cut -d '/' -f 3 | cut -d '@' -f 1)
         local conn_addr_extracted=$(echo "$link_url" | cut -d '@' -f 2 | cut -d ':' -f 1)
         local sub_hash_extracted=$(echo -n "$uuid_extracted" | openssl dgst -md5 | awk '{print $NF}')
-        local sub_url_val="http://${conn_addr_extracted}:8080/subs/${sub_hash_extracted}.json"
+        local sub_url_val="https://${conn_addr_extracted}/subs/${sub_hash_extracted}.json"
         local url_encoded_sub=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$sub_url_val'''))" 2>/dev/null || echo -n "$sub_url_val" | sed 's/:/%3A/g; s/\//%2F/g')
         local singbox_import_link="sing-box://import-remote-profile?url=${url_encoded_sub}#singbox-${user_name}"
         
