@@ -310,8 +310,7 @@ EOF
       ],
       "auto_route": true,
       "strict_route": true,
-      "stack": "mixed",
-      "sniff": true
+      "stack": "mixed"
     }
   ],
   "outbounds": [
