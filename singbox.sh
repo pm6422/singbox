@@ -169,7 +169,6 @@ EOF
         "enabled": true,
         "certificate_provider": "acme-cf",
         "alpn": [
-          "h2",
           "http/1.1"
         ]
       }
@@ -203,7 +202,6 @@ EOF
         "key_path": "/etc/sing-box/cert.key",
         "certificate_path": "/etc/sing-box/cert.pem",
         "alpn": [
-          "h2",
           "http/1.1"
         ]
       }
