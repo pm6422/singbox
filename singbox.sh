@@ -304,8 +304,7 @@ EOF
       },
       {
         "tag": "dns-local",
-        "type": "local",
-        "detour": "direct"
+        "type": "local"
       }
     ]
   },
