@@ -167,7 +167,11 @@ EOF
         server_tls_json=$(cat <<EOF
       "tls": {
         "enabled": true,
-        "certificate_provider": "acme-cf"
+        "certificate_provider": "acme-cf",
+        "alpn": [
+          "h2",
+          "http/1.1"
+        ]
       }
 EOF
 )
@@ -197,7 +201,11 @@ EOF
       "tls": {
         "enabled": true,
         "key_path": "/etc/sing-box/cert.key",
-        "certificate_path": "/etc/sing-box/cert.pem"
+        "certificate_path": "/etc/sing-box/cert.pem",
+        "alpn": [
+          "h2",
+          "http/1.1"
+        ]
       }
 EOF
 )
@@ -323,11 +331,7 @@ EOF
       "tls": {
         "enabled": true,
         "server_name": "$CONNECTION_ADDRESS",
-        "insecure": false,
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        }
+        "insecure": false
       }
     },
     {
