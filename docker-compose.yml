@@ -5,6 +5,7 @@ services:
     container_name: sing-box
     restart: unless-stopped
     ports:
+      - "80:80/tcp"
       - "443:443/tcp"
       - "443:443/udp"
     volumes:

@@ -137,31 +137,70 @@ EOF
         fi
     fi
 
-    # Generate self-signed TLS certificates for Trojan if missing or lacking SAN
-    local need_cert=false
-    if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
-        need_cert=true
-    elif ! openssl x509 -noout -text -in config/cert.pem 2>/dev/null | grep -q "Subject Alternative Name"; then
-        log_warn "Existing TLS certificate relies on legacy Common Name without SAN. Regenerating..."
-        need_cert=true
+    # Determine TLS mode: ACME (Let's Encrypt) for domains, self-signed for raw IPs
+    local is_domain=false
+    if ! echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
+        is_domain=true
     fi
 
-    if [ "$need_cert" = true ]; then
-        log_info "Generating self-signed TLS certificates with SAN for Trojan..."
-        local san_list="DNS:proxy.local"
-        if echo "$CONNECTION_ADDRESS" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
-            san_list="IP:${CONNECTION_ADDRESS},${san_list}"
-        else
-            san_list="DNS:${CONNECTION_ADDRESS},${san_list}"
+    local cert_provider_json=""
+    local server_tls_json=""
+
+    if [ "$is_domain" = true ]; then
+        log_info "Domain detected ($CONNECTION_ADDRESS). Enabling Sing-box native ACME (Let's Encrypt)..."
+        mkdir -p config/acme
+        chmod 755 config/acme
+        cert_provider_json=$(cat <<EOF
+  "certificate_providers": [
+    {
+      "type": "acme",
+      "tag": "acme-cf",
+      "domain": [
+        "$CONNECTION_ADDRESS"
+      ],
+      "email": "admin@$CONNECTION_ADDRESS",
+      "data_directory": "/etc/sing-box/acme"
+    }
+  ],
+EOF
+)
+        server_tls_json=$(cat <<EOF
+      "tls": {
+        "enabled": true,
+        "certificate_provider": "acme-cf"
+      }
+EOF
+)
+    else
+        log_info "Raw IP address detected ($CONNECTION_ADDRESS). Using self-signed TLS certificate..."
+        # Generate self-signed TLS certificates for Trojan if missing or lacking SAN
+        local need_cert=false
+        if [ ! -f "config/cert.pem" ] || [ ! -f "config/cert.key" ]; then
+            need_cert=true
+        elif ! openssl x509 -noout -text -in config/cert.pem 2>/dev/null | grep -q "Subject Alternative Name"; then
+            log_warn "Existing TLS certificate relies on legacy Common Name without SAN. Regenerating..."
+            need_cert=true
         fi
 
-        openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
-            -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" \
-            -addext "subjectAltName=${san_list}" -days 3650 2>/dev/null \
-            || openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
-            -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+        if [ "$need_cert" = true ]; then
+            log_info "Generating self-signed TLS certificates with SAN for Trojan..."
+            local san_list="IP:${CONNECTION_ADDRESS},DNS:proxy.local"
+            openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
+                -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" \
+                -addext "subjectAltName=${san_list}" -days 3650 2>/dev/null \
+                || openssl req -x509 -nodes -newkey rsa:2048 -keyout config/cert.key -out config/cert.pem \
+                -subj "/CN=${CONNECTION_ADDRESS:-proxy.local}" -days 3650 2>/dev/null
+            chmod 644 config/cert.pem config/cert.key
+        fi
 
-        chmod 644 config/cert.pem config/cert.key
+        server_tls_json=$(cat <<EOF
+      "tls": {
+        "enabled": true,
+        "key_path": "/etc/sing-box/cert.key",
+        "certificate_path": "/etc/sing-box/cert.pem"
+      }
+EOF
+)
     fi
 
     # Resolve domain to IP for client config (eliminates DNS bootstrap dependency)
@@ -236,8 +275,8 @@ EOF
         fi
         USERS_JSON="$USERS_JSON{\"name\": \"$username\", \"password\": \"$UUID\"}"
 
-        # Generate client link
-        LINK="trojan://$UUID@$CONNECTION_ADDRESS:443?sni=$CONNECTION_ADDRESS&allowInsecure=1#singbox-$username"
+        # Generate client link (clean standard Trojan URI)
+        LINK="trojan://$UUID@$CONNECTION_ADDRESS:443?sni=$CONNECTION_ADDRESS#singbox-$username"
         NEW_CLIENT_LINKS="$NEW_CLIENT_LINKS${username}: ${LINK}"$'\n'
 
         # Generate client JSON config
@@ -251,13 +290,14 @@ EOF
     "servers": [
       {
         "tag": "dns-remote",
-        "type": "https",
+        "type": "udp",
         "server": "8.8.8.8",
         "detour": "proxy"
       },
       {
         "tag": "dns-local",
-        "type": "local"
+        "type": "local",
+        "detour": "direct"
       }
     ]
   },
@@ -265,26 +305,26 @@ EOF
     {
       "type": "tun",
       "tag": "tun-in",
-      "interface_name": "tun0",
       "address": [
         "172.19.0.1/30"
       ],
       "auto_route": true,
       "strict_route": true,
-      "stack": "system"
+      "stack": "mixed",
+      "sniff": true
     }
   ],
   "outbounds": [
     {
       "type": "trojan",
       "tag": "proxy",
-      "server": "$SERVER_CONNECT_IP",
+      "server": "$CONNECTION_ADDRESS",
       "server_port": 443,
       "password": "$UUID",
       "tls": {
         "enabled": true,
         "server_name": "$CONNECTION_ADDRESS",
-        "insecure": true,
+        "insecure": false,
         "utls": {
           "enabled": true,
           "fingerprint": "chrome"
@@ -346,7 +386,7 @@ EOF
       "server": "dns-local"
     }
   },
-  "inbounds": [
+$cert_provider_json  "inbounds": [
     {
       "type": "trojan",
       "tag": "trojan-in",
@@ -355,11 +395,7 @@ EOF
       "users": [
         $USERS_JSON
       ],
-      "tls": {
-        "enabled": true,
-        "key_path": "/etc/sing-box/cert.key",
-        "certificate_path": "/etc/sing-box/cert.pem"
-      }
+$server_tls_json
     }
   ],
   "outbounds": [

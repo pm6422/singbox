@@ -9,3 +9,4 @@ config/config.json
 config/client_links.txt
 config/*_client.json
 config/subs/
+config/acme/
