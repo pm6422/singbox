@@ -73,8 +73,8 @@ install_qrencode() {
 # Setup folders and configurations (Incremental User logic)
 setup_configurations() {
     log_info "Setting up configuration directory..."
-    mkdir -p config
-    chmod 755 config
+    mkdir -p config www
+    chmod 755 config www
 
     # Ensure users.txt exists
     if [ ! -f "config/users.txt" ]; then

@@ -17,5 +17,5 @@ services:
     container_name: sub-server
     restart: unless-stopped
     volumes:
-      - "./www:/usr/share/nginx/html:ro"
+      - "./www/index.html:/usr/share/nginx/html/index.html:ro"
       - "./config/subs:/usr/share/nginx/html/subs:ro"
