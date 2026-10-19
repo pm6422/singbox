@@ -63,6 +63,8 @@
 ├── docker-compose.yml       # Docker 服务容器编排文件 (sing-box + 内部 sub-server)
 ├── singbox.sh               # 交互式命令行控制面板脚本
 ├── README.md                # 项目文档
+├── www/                     # [伪装网站] SkyTrading 量化与金融研究主页
+│   └── index.html
 └── config/                  # 配置数据持久化目录
     ├── users.txt            # [用户维护] 每一行配置一个用户名
     ├── config.json          # [自动生成] 服务端 sing-box 主配置文件

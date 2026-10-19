@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyTrading Labs | High-Frequency Systems & Quantitative Research</title>
+  <meta name="description" content="Next-generation quantitative trading systems, low-latency market telemetry, and distributed financial infrastructure.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%230f172a'/><path d='M8 20 L14 12 L19 17 L24 9' stroke='%2338bdf8' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/><circle cx='24' cy='9' r='2' fill='%2338bdf8'/></svg>">
+  <style>
+    :root {
+      --bg: #07090e;
+      --bg-surface: rgba(15, 23, 42, 0.65);
+      --bg-surface-hover: rgba(30, 41, 59, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(56, 189, 248, 0.35);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --indigo: #6366f1;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glow */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -15%;
+      left: 20%;
+      width: 60vw;
+      height: 60vh;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(56, 189, 248, 0.05) 50%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: -10%;
+      right: 15%;
+      width: 50vw;
+      height: 50vh;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 65%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 9, 14, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 1.125rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-name span {
+      color: var(--cyan);
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8125rem;
+      font-family: var(--font-mono);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--emerald);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .utc-clock {
+      color: var(--text-muted);
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .utc-clock { display: block; }
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      max-width: 820px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.85rem;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--cyan);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, #ffffff 20%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-muted);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card:hover {
+      border-color: var(--border-focus);
+      background: var(--bg-surface-hover);
+      transform: translateY(-2px);
+    }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-val {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      font-family: var(--font-mono);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+
+    .metric-sub {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .text-emerald { color: var(--emerald); }
+    .text-cyan { color: var(--cyan); }
+
+    /* Telemetry Chart Section */
+    .telemetry-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .section-title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title svg {
+      color: var(--cyan);
+    }
+
+    .ticker-bar {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      padding: 0.4rem 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .ticker-symbol {
+      color: var(--text-dim);
+    }
+
+    .ticker-price {
+      font-weight: 600;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 200px;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Content Split: Research Dispatches & Infrastructure */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .dispatch-card, .infra-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dispatch-item {
+      padding: 0.875rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+
+    .dispatch-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dispatch-meta {
+      font-size: 0.75rem;
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      margin-bottom: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dispatch-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--text);
+    }
+
+    .dispatch-snippet {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Infrastructure Nodes */
+    .node-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0.875rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      font-size: 0.8125rem;
+      font-family: var(--font-mono);
+    }
+
+    .node-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+
+    .node-stat {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .latency-tag {
+      color: var(--text-dim);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+      margin-top: auto;
+      background: rgba(7, 9, 14, 0.9);
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8125rem;
+    }
+
+    @media (min-width: 640px) {
+      .footer-container {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+      }
+    }
+
+    .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-logo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-name">Sky<span>Trading</span> <span style="font-weight: 300; color: var(--text-dim); font-size: 0.9em;">Labs</span></div>
+      </a>
+      <div class="nav-status">
+        <div class="status-badge">
+          <span class="pulse-dot"></span>
+          <span>CLUSTER NOMINAL</span>
+        </div>
+        <div class="utc-clock" id="utcClock">UTC 00:00:00</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Header -->
+    <section class="hero">
+      <div class="hero-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        Automated Execution Telemetry
+      </div>
+      <h1 class="hero-title">Quantitative Research & Low-Latency Execution</h1>
+      <p class="hero-desc">
+        Distributed order routing, real-time market data ingestion, and statistical volatility modeling deployed across ultra-low-latency financial gateway infrastructure.
+      </p>
+    </section>
+
+    <!-- Metrics Dashboard -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span>Engine Latency</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="metric-val">0.34 <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span></div>
+        <div class="metric-sub text-emerald">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+          Sub-millisecond US-East Colocation
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span>Telemetry Stream</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <div class="metric-val">1.42 <span style="font-size: 0.9rem; color: var(--text-dim);">B Ticks</span></div>
+        <div class="metric-sub text-cyan">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+          24h Continuous Ingestion
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span>Core Availability</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="metric-val">99.998<span style="font-size: 0.9rem; color: var(--text-dim);">%</span></div>
+        <div class="metric-sub text-emerald">
+          <span class="pulse-dot" style="width: 5px; height: 5px;"></span>
+          High-Availability Routing
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span>Active Strategies</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <div class="metric-val">18 <span style="font-size: 0.9rem; color: var(--text-dim);">Models</span></div>
+        <div class="metric-sub text-cyan">
+          <span>Multi-Exchange Arbitrage</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-time Telemetry & Market Radar -->
+    <section class="telemetry-section">
+      <div class="section-title-bar">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Synthetic Market Signal Telemetry
+        </div>
+        <div class="footer-badge">STREAM: ACTIVE (60 FPS)</div>
+      </div>
+
+      <!-- Live Ticker Strip -->
+      <div class="ticker-bar" id="tickerBar">
+        <div class="ticker-item"><span class="ticker-symbol">BTC/USD</span> <span class="ticker-price text-emerald" id="t-btc">67,420.50</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">ETH/USD</span> <span class="ticker-price text-emerald" id="t-eth">3,540.20</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">SOL/USD</span> <span class="ticker-price text-cyan" id="t-sol">182.45</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">NQ-MINI</span> <span class="ticker-price text-emerald" id="t-nq">19,842.25</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">ALPHA-INDEX</span> <span class="ticker-price text-cyan" id="t-alpha">1,048.91</span></div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="telemetryCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Dispatches & System Topology -->
+    <div class="content-grid">
+      <!-- Research Dispatches -->
+      <div class="dispatch-card">
+        <div class="section-title-bar">
+          <div class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Research Notes & Whitepapers
+          </div>
+        </div>
+        <div class="list-container">
+          <div class="dispatch-item">
+            <div class="dispatch-meta">
+              <span>RESEARCH NOTE #104</span>
+              <span>OCT 2026</span>
+            </div>
+            <div class="dispatch-title">Order Flow Imbalance in Modern Fragmented Exchanges</div>
+            <div class="dispatch-snippet">Empirical calibration of Poisson-driven queue depletion models and predictive alpha under high-frequency cross-venue hedging.</div>
+          </div>
+
+          <div class="dispatch-item">
+            <div class="dispatch-meta">
+              <span>ARCHITECTURE #072</span>
+              <span>SEP 2026</span>
+            </div>
+            <div class="dispatch-title">Zero-Copy Kernel Bypass in Financial Gateway Routing</div>
+            <div class="dispatch-snippet">Minimizing memory barrier overhead and jitter variance in Linux eBPF/XDP network datagram dispatchers.</div>
+          </div>
+
+          <div class="dispatch-item">
+            <div class="dispatch-meta">
+              <span>QUANT LAB #058</span>
+              <span>AUG 2026</span>
+            </div>
+            <div class="dispatch-title">Fractional Brownian Motion and Implied Volatility Surfaces</div>
+            <div class="dispatch-snippet">High-dimension parameter estimation via neural SDE solvers under asymmetric market shocks.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Infrastructure Nodes Status -->
+      <div class="infra-card">
+        <div class="section-title-bar">
+          <div class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Edge Routing Nodes
+          </div>
+        </div>
+        <div class="list-container">
+          <div class="node-row">
+            <div class="node-name">
+              <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
+              <span>US-East-1 (Primary Gateway)</span>
+            </div>
+            <div class="node-stat">
+              <span class="latency-tag">0.28ms</span>
+              <span class="text-emerald">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="node-row">
+            <div class="node-name">
+              <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
+              <span>EU-West-1 (Arbitrage Bridge)</span>
+            </div>
+            <div class="node-stat">
+              <span class="latency-tag">14.2ms</span>
+              <span class="text-emerald">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="node-row">
+            <div class="node-name">
+              <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
+              <span>AP-East-1 (Market Telemetry)</span>
+            </div>
+            <div class="node-stat">
+              <span class="latency-tag">42.1ms</span>
+              <span class="text-emerald">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="node-row">
+            <div class="node-name">
+              <span class="pulse-dot" style="width: 6px; height: 6px;"></span>
+              <span>Risk Sentinel Controller</span>
+            </div>
+            <div class="node-stat">
+              <span class="latency-tag">0.05ms</span>
+              <span class="text-emerald">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div>
+        © 2026 <strong>SkyTrading Systems Ltd.</strong> All rights reserved. High-throughput distributed financial telemetry.
+      </div>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <span class="footer-badge">SECURE TLS 1.3</span>
+        <span class="footer-badge">NODE: SKY-GATE-01</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Live UTC Clock
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      const el = document.getElementById('utcClock');
+      if (el) el.textContent = `UTC ${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Micro Price Ticker Simulator
+    const prices = {
+      btc: 67420.50,
+      eth: 3540.20,
+      sol: 182.45,
+      nq: 19842.25,
+      alpha: 1048.91
+    };
+
+    function updateTickers() {
+      for (const [key, val] of Object.entries(prices)) {
+        const delta = (Math.random() - 0.49) * (val * 0.0006);
+        prices[key] = Math.max(1, val + delta);
+        const el = document.getElementById(`t-${key}`);
+        if (el) {
+          el.textContent = prices[key].toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        }
+      }
+    }
+    setInterval(updateTickers, 1500);
+
+    // Canvas Smooth Real-Time Signal Stream
+    const canvas = document.getElementById('telemetryCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    let points = [];
+    const maxPoints = 80;
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      canvas.width = canvas.parentElement.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.parentElement.clientHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Initialize points
+    let currentVal = 50;
+    for (let i = 0; i < maxPoints; i++) {
+      currentVal += (Math.random() - 0.5) * 4;
+      currentVal = Math.max(15, Math.min(85, currentVal));
+      points.push(currentVal);
+    }
+
+    let frame = 0;
+    function renderChart() {
+      if (!canvas || !ctx) return;
+      frame++;
+
+      if (frame % 4 === 0) {
+        currentVal += (Math.random() - 0.49) * 3.5;
+        currentVal = Math.max(15, Math.min(85, currentVal));
+        points.push(currentVal);
+        if (points.length > maxPoints) points.shift();
+      }
+
+      const w = canvas.parentElement.clientWidth;
+      const h = canvas.parentElement.clientHeight;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Grid lines
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+      ctx.lineWidth = 1;
+      for (let y = 0; y < h; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      // Draw Gradient Path
+      ctx.beginPath();
+      const step = w / (maxPoints - 1);
+
+      for (let i = 0; i < points.length; i++) {
+        const x = i * step;
+        const y = h - (points[i] / 100) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+          const prevX = (i - 1) * step;
+          const prevY = h - (points[i - 1] / 100) * h;
+          const cpX = (prevX + x) / 2;
+          ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+        }
+      }
+
+      // Gradient Fill
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, h);
+      gradient.addColorStop(0, "rgba(56, 189, 248, 0.2)");
+      gradient.addColorStop(1, "rgba(56, 189, 248, 0.0)");
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Stroke line
+      ctx.beginPath();
+      for (let i = 0; i < points.length; i++) {
+        const x = i * step;
+        const y = h - (points[i] / 100) * h;
+        if (i === 0) ctx.moveTo(x, y);
+        else {
+          const prevX = (i - 1) * step;
+          const prevY = h - (points[i - 1] / 100) * h;
+          const cpX = (prevX + x) / 2;
+          ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+        }
+      }
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Pulsing head point
+      const lastX = (points.length - 1) * step;
+      const lastY = h - (points[points.length - 1] / 100) * h;
+
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+      ctx.fillStyle = "#38bdf8";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.5)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      requestAnimationFrame(renderChart);
+    }
+    requestAnimationFrame(renderChart);
+  </script>
+</body>
+</html>
